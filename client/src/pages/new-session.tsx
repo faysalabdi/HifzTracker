@@ -141,11 +141,25 @@ export default function NewSession() {
     const timeValue = form.getValues().timeInput;
     
     if (dateValue && timeValue) {
-      const combinedDate = new Date(`${dateValue}T${timeValue}`);
-      data.date = combinedDate;
+      // Create a proper Date object
+      data.date = new Date(`${dateValue}T${timeValue}`);
+    } else {
+      // Default to current date/time if not provided
+      data.date = new Date();
     }
     
-    createSessionMutation.mutate(data);
+    // Create a copy of the data with necessary transformations
+    const sessionData = {
+      ...data,
+      // Ensure these are numbers
+      student1Id: Number(data.student1Id),
+      student2Id: Number(data.student2Id),
+      ayahStart: Number(data.ayahStart),
+      ayahEnd: Number(data.ayahEnd),
+      // date is already a Date object
+    };
+    
+    createSessionMutation.mutate(sessionData);
   };
 
   // Handle edit mistake
