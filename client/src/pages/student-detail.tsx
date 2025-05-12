@@ -255,11 +255,11 @@ export default function StudentDetail() {
                       </div>
                       <div className="flex-grow">
                         <div className="flex justify-between">
-                          <h4 className="font-medium">{session.surah}</h4>
+                          <h4 className="font-medium">Revision Session</h4>
                           <span className="text-sm text-neutral-500">{formatDate(session.date)}</span>
                         </div>
                         <p className="text-sm text-neutral-600">
-                          Pages {session.pageStart}-{session.pageEnd} with {session.student1Id === student.id ? session.student2.name : session.student1.name}
+                          {session.surahStart} {session.ayahStart} - {session.surahEnd} {session.ayahEnd}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className={`text-xs px-2 py-0.5 rounded-full ${getMistakeCountColor(session.mistakeCount)}`}>
@@ -394,7 +394,7 @@ export default function StudentDetail() {
                         <th className="px-4 py-3 text-left">Date</th>
                         <th className="px-4 py-3 text-left">Partner</th>
                         <th className="px-4 py-3 text-left">Surah</th>
-                        <th className="px-4 py-3 text-left">Pages</th>
+                        <th className="px-4 py-3 text-left">Ayah</th>
                         <th className="px-4 py-3 text-left">Mistakes</th>
                         <th className="px-4 py-3 text-left">Status</th>
                         <th className="px-4 py-3 text-left">Actions</th>
@@ -405,12 +405,10 @@ export default function StudentDetail() {
                         <tr key={session.id} className="border-b border-neutral-100">
                           <td className="px-4 py-3">{format(new Date(session.date), 'PPP')}</td>
                           <td className="px-4 py-3">
-                            {session.student1Id === student.id 
-                              ? session.student2.name 
-                              : session.student1.name}
+                            Partner
                           </td>
-                          <td className="px-4 py-3">{session.surah}</td>
-                          <td className="px-4 py-3">{session.pageStart}-{session.pageEnd}</td>
+                          <td className="px-4 py-3">{session.surahStart}</td>
+                          <td className="px-4 py-3">{session.ayahStart}-{session.ayahEnd}</td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getMistakeCountColor(session.mistakeCount)}`}>
                               {session.mistakeCount}
