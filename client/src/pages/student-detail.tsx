@@ -323,7 +323,7 @@ export default function StudentDetail() {
                           {student.mostCommonMistakeType === 'word' && (
                             <li>Work on vocabulary and word recognition exercises</li>
                           )}
-                          {student.mostCommonMistakeType === 'hesitation' && (
+                          {student.mostCommonMistakeType === 'stuck' && (
                             <li>Practice fluency with short passages before combining</li>
                           )}
                           <li>Regular revision of pages {student.currentJuz * 20 - 10} to {student.currentJuz * 20}</li>
