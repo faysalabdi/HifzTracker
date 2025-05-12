@@ -277,70 +277,7 @@ export default function Reports() {
         </CardContent>
       </Card>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
-          <Card>
-            <CardHeader className="p-4 border-b border-neutral-100">
-              <h3 className="text-lg font-medium">Common Mistakes Gallery</h3>
-            </CardHeader>
-            <CardContent className="p-5">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <img 
-                  src="https://pixabay.com/get/gd9405f5ef3d5b9c727e3b029d0290ac7272329367321e0444966fb67548de60391b58bfa8c17919dbb446c8441eff9381a08796b4a9741415644b2c62658ca02_1280.jpg" 
-                  alt="Students studying together" 
-                  className="w-full h-32 object-cover rounded-lg" 
-                />
-                <img 
-                  src="https://images.unsplash.com/photo-1606800052052-a08af7148866?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" 
-                  alt="Student taking notes while studying" 
-                  className="w-full h-32 object-cover rounded-lg" 
-                />
-                <img 
-                  src="https://pixabay.com/get/g9069e65962bb692d3afc99c42030ae943f2a26404b029f12fc428f483a00678f5c0118f73b2639d7cb0444f542e20ae0e1b019a6684576149a5ccbc6cc85c9d8_1280.jpg" 
-                  alt="Quran text with tajweed markings" 
-                  className="w-full h-32 object-cover rounded-lg" 
-                />
-              </div>
-              <div>
-                <h4 className="font-medium mb-2">Common Tajweed Mistakes</h4>
-                <ul className="list-disc pl-5 text-sm text-neutral-600 space-y-1">
-                  <li>Failure to apply ghunnah properly in noon and meem mushaddad</li>
-                  <li>Incorrect application of ikhfa rules with tanween</li>
-                  <li>Missing the proper length in madd letters</li>
-                  <li>Difficulty with heavy/light pronunciations of Ra'</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <Card>
-          <CardHeader className="p-4 border-b border-neutral-100">
-            <h3 className="text-lg font-medium">Improvement Tips</h3>
-          </CardHeader>
-          <CardContent className="p-5">
-            <img 
-              src="https://pixabay.com/get/gcc804731f853d4c4e8aecf5acd4a509b22ad3c11d9c49957fc8eab110fe8251b8418601e6bb64d7b0e6e8ddb57d0690fb6f1e9cb75523b3c780ed8436e922050_1280.jpg" 
-              alt="Teacher guiding student in Quran reading" 
-              className="w-full h-32 object-cover rounded-lg mb-4" 
-            />
-            <div className="space-y-3">
-              <div className="p-3 bg-primary-50 rounded-lg">
-                <h4 className="font-medium mb-1 text-primary-600">For Tajweed Mistakes</h4>
-                <p className="text-sm text-neutral-600">Focus on isolated practice of specific rules before applying in context.</p>
-              </div>
-              <div className="p-3 bg-secondary-50 rounded-lg">
-                <h4 className="font-medium mb-1 text-secondary-600">For Word Mistakes</h4>
-                <p className="text-sm text-neutral-600">Create flashcards for similar-looking words to strengthen recognition.</p>
-              </div>
-              <div className="p-3 bg-accent-50 rounded-lg">
-                <h4 className="font-medium mb-1 text-accent-600">For Hesitation</h4>
-                <p className="text-sm text-neutral-600">Record readings to identify patterns and practice fluency through repetition.</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Additional visualizations would go here if needed */}
     </div>
   );
 }
