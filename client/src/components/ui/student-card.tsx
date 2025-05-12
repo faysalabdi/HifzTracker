@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { MoreHorizontal } from "lucide-react";
@@ -7,14 +8,59 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { StudentWithStats } from "@shared/schema";
+import { Student, StudentWithStats } from "@shared/schema";
 import { getInitials } from "@/lib/constants";
+import { EditStudentDialog } from "@/components/ui/edit-student-dialog";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface StudentCardProps {
   student: StudentWithStats;
 }
 
 export function StudentCard({ student }: StudentCardProps) {
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Delete student mutation
+  const deleteStudentMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('DELETE', `/api/students/${student.id}`);
+      return response;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Student deleted",
+        description: "The student has been deleted successfully."
+      });
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/students'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/students/stats'] });
+      setShowDeleteDialog(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete student: ${error.message}`,
+        variant: "destructive"
+      });
+      setShowDeleteDialog(false);
+    }
+  });
+
   // Get background color for avatar based on name
   const getAvatarColor = () => {
     const colors = [
@@ -57,8 +103,15 @@ export function StudentCard({ student }: StudentCardProps) {
             <Link href={`/students/${student.id}`}>
               <DropdownMenuItem>View Profile</DropdownMenuItem>
             </Link>
-            <DropdownMenuItem>Edit Student</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-500">Delete Student</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
+              Edit Student
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onSelect={() => setShowDeleteDialog(true)}
+              className="text-red-500"
+            >
+              Delete Student
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
@@ -93,6 +146,37 @@ export function StudentCard({ student }: StudentCardProps) {
           <a className="text-primary-500 text-sm font-medium">View Profile</a>
         </Link>
       </CardFooter>
+      
+      {/* Edit Student Dialog */}
+      {showEditDialog && (
+        <EditStudentDialog
+          isOpen={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
+          student={student}
+        />
+      )}
+      
+      {/* Delete Student Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete {student.name}'s record and all associated data. 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteStudentMutation.mutate()}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              {deleteStudentMutation.isPending ? "Deleting..." : "Delete Student"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
