@@ -106,32 +106,11 @@ export function AddStudentDialog({ isOpen, onClose }: AddStudentDialogProps) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="grade"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Grade</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select grade" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {grades.map((grade) => (
-                        <SelectItem key={grade} value={grade}>
-                          Grade {grade}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+            {/* Grade field hidden for adult students */}
+            <input 
+              type="hidden" 
+              {...form.register("grade")} 
+              value="adult"
             />
 
             <div className="grid grid-cols-2 gap-4">

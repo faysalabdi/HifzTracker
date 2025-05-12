@@ -157,8 +157,8 @@ export default function Dashboard() {
                         <div>
                           <h4 className="font-medium">{student.name}</h4>
                           <div className="flex items-center gap-2 text-xs">
-                            <Badge variant="outline" className="text-xs">Grade {student.grade}</Badge>
-                            <span className="text-neutral-500">Juz {student.currentJuz}</span>
+                            <span className="text-neutral-500">Current: Juz {student.currentJuz}</span>
+                            {student.currentSurah && <span className="text-neutral-500">• Surah {student.currentSurah}</span>}
                           </div>
                         </div>
                       </div>

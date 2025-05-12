@@ -6,7 +6,8 @@ import { z } from "zod";
 export const students = pgTable("students", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  grade: text("grade").notNull(),
+  // No grade field for adult students
+  grade: text("grade").default("adult").notNull(),
   currentJuz: integer("current_juz").notNull(),
   currentSurah: text("current_surah"),
   notes: text("notes"),
