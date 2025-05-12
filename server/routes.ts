@@ -363,6 +363,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get student progress data
+  app.get(`${apiPrefix}/students/progress`, async (req, res) => {
+    try {
+      const studentId = parseInt(req.query.studentId as string) || 0;
+      const days = parseInt(req.query.days as string) || 30;
+      
+      if (studentId === 0) {
+        // Return overall progress for all students
+        const trend = await storage.getMistakeTrend(days);
+        res.json(trend);
+      } else {
+        // Return progress for a specific student
+        const progress = await storage.getStudentProgress(studentId, days);
+        res.json(progress);
+      }
+    } catch (error) {
+      console.error("Error getting student progress:", error);
+      res.status(500).json({ message: "Failed to retrieve student progress data" });
+    }
+  });
+
   // Create and return HTTP server
   const httpServer = createServer(app);
   return httpServer;

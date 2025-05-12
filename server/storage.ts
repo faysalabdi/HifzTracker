@@ -42,6 +42,7 @@ export interface IStorage {
   getSessionCountByDay(): Promise<Record<string, number>>;
   getAverageMistakesPerSession(): Promise<number>;
   getMistakeTrend(days: number): Promise<{ date: string; count: number }[]>;
+  getStudentProgress(studentId: number, days: number): Promise<{ date: string; count: number; mistakeType: MistakeType | null }[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -327,6 +328,60 @@ export class MemStorage implements IStorage {
     });
     
     return results;
+  }
+  
+  async getStudentProgress(studentId: number, days: number): Promise<{ date: string; count: number; mistakeType: MistakeType | null }[]> {
+    const now = new Date();
+    const startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - days);
+    
+    const results: { date: string; count: number; mistakeType: MistakeType | null }[] = [];
+    
+    // Initialize all dates with zero counts
+    for (let i = 0; i < days; i++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      results.push({ date: dateStr, count: 0, mistakeType: null });
+    }
+    
+    // Get mistakes for the specific student
+    const mistakes = await this.getMistakesByStudent(studentId);
+    
+    // Calculate counts by date and track most common mistake type per day
+    mistakes.forEach(mistake => {
+      const mistakeDate = new Date(mistake.createdAt).toISOString().split('T')[0];
+      const resultItem = results.find(item => item.date === mistakeDate);
+      
+      if (resultItem) {
+        resultItem.count += 1;
+        
+        // Set the most common mistake type for this date
+        // In a real implementation, you'd track counts of each type and pick the most common
+        // For simplicity, we'll just use the most recent one
+        resultItem.mistakeType = mistake.type;
+      }
+    });
+    
+    // Calculate 7-day moving average to smooth out the data
+    // This helps in visualizing trends better
+    const smoothedResults = results.map((item, index, array) => {
+      // If we have less than 7 days of data before this point, just return the item as is
+      if (index < 6) return item;
+      
+      // Calculate the average of the past 7 days
+      const window = array.slice(index - 6, index + 1);
+      const sum = window.reduce((acc, curr) => acc + curr.count, 0);
+      const avg = sum / 7;
+      
+      // Return a new object with the smoothed count
+      return {
+        ...item,
+        count: parseFloat(avg.toFixed(2)) // Round to 2 decimal places for cleaner display
+      };
+    });
+    
+    return smoothedResults;
   }
 
   // Helper method to initialize sample data
