@@ -37,8 +37,7 @@ export const navItems = [
 export const mistakeTypes = [
   { value: "tajweed", label: "Tajweed Error", color: "bg-error text-error" },
   { value: "word", label: "Word Mistake", color: "bg-warning text-warning" },
-  { value: "hesitation", label: "Hesitation", color: "bg-accent-500 text-accent-600" },
-  { value: "other", label: "Other", color: "bg-primary-500 text-primary-600" }
+  { value: "stuck", label: "Stuck", color: "bg-accent-500 text-accent-600" }
 ];
 
 export const grades = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];

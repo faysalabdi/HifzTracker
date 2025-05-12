@@ -356,36 +356,40 @@ export class MemStorage implements IStorage {
         date: new Date(today.setHours(10, 30, 0, 0)), 
         student1Id: 1, 
         student2Id: 4, 
-        pageStart: 5, 
-        pageEnd: 10, 
-        surah: "Al-Baqarah", 
+        surahStart: "Al-Baqarah", 
+        ayahStart: 5, 
+        surahEnd: "Al-Baqarah", 
+        ayahEnd: 20, 
         completed: true 
       },
       { 
         date: new Date(today.setHours(9, 15, 0, 0)), 
         student1Id: 2, 
         student2Id: 5, 
-        pageStart: 1, 
-        pageEnd: 5, 
-        surah: "Yunus", 
+        surahStart: "Yunus", 
+        ayahStart: 1, 
+        surahEnd: "Yunus", 
+        ayahEnd: 15, 
         completed: true 
       },
       { 
         date: new Date(yesterday.setHours(14, 45, 0, 0)), 
         student1Id: 3, 
         student2Id: 1, 
-        pageStart: 10, 
-        pageEnd: 15, 
-        surah: "Al-A'raf", 
+        surahStart: "Al-A'raf", 
+        ayahStart: 10, 
+        surahEnd: "Al-A'raf", 
+        ayahEnd: 30, 
         completed: true 
       },
       { 
         date: new Date(yesterday.setHours(11, 20, 0, 0)), 
         student1Id: 4, 
         student2Id: 3, 
-        pageStart: 5, 
-        pageEnd: 10, 
-        surah: "Al-Baqarah", 
+        surahStart: "Al-Baqarah", 
+        ayahStart: 40, 
+        surahEnd: "Al-Baqarah", 
+        ayahEnd: 60, 
         completed: true 
       }
     ];

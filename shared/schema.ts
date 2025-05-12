@@ -14,7 +14,7 @@ export const students = pgTable("students", {
 });
 
 // Mistake types enum
-export const mistakeTypes = ["tajweed", "word", "hesitation", "other"] as const;
+export const mistakeTypes = ["tajweed", "word", "stuck"] as const;
 export type MistakeType = typeof mistakeTypes[number];
 
 // Mistake type schema
@@ -26,8 +26,8 @@ export const mistakes = pgTable("mistakes", {
   sessionId: integer("session_id").notNull(),
   studentId: integer("student_id").notNull(),
   type: text("type").notNull(), // One of the mistakeTypes
-  page: integer("page").notNull(),
-  line: integer("line").notNull(),
+  surah: text("surah").notNull(),
+  ayah: integer("ayah").notNull(),
   description: text("description").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -38,9 +38,10 @@ export const sessions = pgTable("sessions", {
   date: timestamp("date").defaultNow().notNull(),
   student1Id: integer("student1_id").notNull(),
   student2Id: integer("student2_id").notNull(),
-  pageStart: integer("page_start").notNull(),
-  pageEnd: integer("page_end").notNull(),
-  surah: text("surah").notNull(),
+  surahStart: text("surah_start").notNull(),
+  ayahStart: integer("ayah_start").notNull(),
+  surahEnd: text("surah_end").notNull(),
+  ayahEnd: integer("ayah_end").notNull(),
   completed: boolean("completed").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
