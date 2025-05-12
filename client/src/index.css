@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&family=Amiri:wght@400;700&display=swap');
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 20 14.3% 4.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  --primary: 207 90% 54%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 149 80% 50%;
+  --secondary-foreground: 24 9.8% 10%;
+  --accent: 33 100% 50%;
+  --accent-foreground: 24 9.8% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 20 14.3% 4.1%;
+  --radius: 0.5rem;
+  --chart-1: 207 90% 54%;
+  --chart-2: 0 84.2% 60.2%;
+  --chart-3: 33 100% 50%;
+  --chart-4: 149 80% 50%;
+  --chart-5: 270 60% 50%;
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 20 14.3% 4.1%;
+  --sidebar-primary: 207 90% 54%;
+  --sidebar-primary-foreground: 211 100% 99%;
+  --sidebar-accent: 33 100% 50%;
+  --sidebar-accent-foreground: 24 9.8% 10%;
+  --sidebar-border: 20 5.9% 90%;
+  --sidebar-ring: 20 14.3% 4.1%;
+  --error: 0 84.2% 60.2%;
+  --success: 142 72% 29%;
+  --warning: 38 92% 50%;
+}
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 207 90% 54%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 149 80% 50%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 33 100% 50%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-neutral-50 text-foreground;
+  }
+}
+
+/* Custom font classes */
+.font-heading {
+  font-family: 'Poppins', sans-serif;
+}
+
+.font-quran {
+  font-family: 'Amiri', serif;
+}
+
+/* Custom styles for color utilities */
+.bg-error {
+  background-color: hsl(var(--error) / var(--tw-bg-opacity, 1));
+}
+
+.bg-success {
+  background-color: hsl(var(--success) / var(--tw-bg-opacity, 1));
+}
+
+.bg-warning {
+  background-color: hsl(var(--warning) / var(--tw-bg-opacity, 1));
+}
+
+.text-error {
+  color: hsl(var(--error));
+}
+
+.text-success {
+  color: hsl(var(--success));
+}
+
+.text-warning {
+  color: hsl(var(--warning));
+}
+
+.bg-accent-50 {
+  background-color: hsl(33, 100%, 95%);
+}
+
+.bg-primary-50 {
+  background-color: hsl(207, 90%, 95%);
+}
+
+.bg-secondary-50 {
+  background-color: hsl(149, 80%, 95%);
+}
+
+.text-accent-500, .text-accent-600 {
+  color: hsl(var(--accent));
+}
