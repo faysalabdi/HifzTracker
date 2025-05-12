@@ -56,9 +56,10 @@ export default function NewSession() {
       date: new Date(),
       student1Id: 0,
       student2Id: 0,
-      pageStart: 1,
-      pageEnd: 5,
-      surah: "Al-Baqarah",
+      surahStart: "Al-Baqarah",
+      ayahStart: 1,
+      surahEnd: "Al-Baqarah",
+      ayahEnd: 10,
       completed: false
     }
   });
@@ -277,22 +278,30 @@ export default function NewSession() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <FormLabel>Page Range</FormLabel>
-                  <div className="flex gap-2">
+                  <FormLabel>Starting Point</FormLabel>
+                  <div className="grid grid-cols-2 gap-2">
                     <FormField
                       control={form.control}
-                      name="pageStart"
+                      name="surahStart"
                       render={({ field }) => (
-                        <FormItem className="flex-1">
+                        <FormItem>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="From" 
-                              min="1"
-                              {...field} 
-                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
                               disabled={!!form.getValues().id}
-                            />
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Surah" />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-72">
+                                {surahs.map((surah) => (
+                                  <SelectItem key={surah} value={surah}>
+                                    {surah}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -301,13 +310,13 @@ export default function NewSession() {
                     
                     <FormField
                       control={form.control}
-                      name="pageEnd"
+                      name="ayahStart"
                       render={({ field }) => (
-                        <FormItem className="flex-1">
+                        <FormItem>
                           <FormControl>
                             <Input 
                               type="number" 
-                              placeholder="To" 
+                              placeholder="Ayah" 
                               min="1"
                               {...field} 
                               onChange={(e) => field.onChange(parseInt(e.target.value))}
@@ -321,34 +330,58 @@ export default function NewSession() {
                   </div>
                 </div>
                 
-                <FormField
-                  control={form.control}
-                  name="surah"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Surah</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        disabled={!!form.getValues().id}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select surah" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="max-h-72">
-                          {surahs.map((surah) => (
-                            <SelectItem key={surah} value={surah}>
-                              {surah}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div>
+                  <FormLabel>Ending Point</FormLabel>
+                  <div className="grid grid-cols-2 gap-2">
+                    <FormField
+                      control={form.control}
+                      name="surahEnd"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              disabled={!!form.getValues().id}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Surah" />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-72">
+                                {surahs.map((surah) => (
+                                  <SelectItem key={surah} value={surah}>
+                                    {surah}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="ayahEnd"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Ayah" 
+                              min="1"
+                              {...field} 
+                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              disabled={!!form.getValues().id}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
               </div>
               
               {!form.getValues().id && (
@@ -395,8 +428,8 @@ export default function NewSession() {
                     وَلَقَدْ آتَيْنَا مُوسَى الْكِتَابَ وَقَفَّيْنَا مِن بَعْدِهِ بِالرُّسُلِ ۖ وَآتَيْنَا عِيسَى ابْنَ مَرْيَمَ الْبَيِّنَاتِ وَأَيَّدْنَاهُ بِرُوحِ الْقُدُسِ ۗ أَفَكُلَّمَا جَاءَكُمْ رَسُولٌ بِمَا لَا تَهْوَىٰ أَنفُسُكُمُ اسْتَكْبَرْتُمْ فَفَرِيقًا كَذَّبْتُمْ وَفَرِيقًا تَقْتُلُونَ
                   </div>
                   <div className="flex justify-between items-center text-sm text-neutral-500">
-                    <span>{form.getValues().surah} (2:87)</span>
-                    <span>Page {form.getValues().pageStart}</span>
+                    <span>{form.getValues().surahStart} {form.getValues().ayahStart}-{form.getValues().ayahEnd}</span>
+                    <span>{form.getValues().surahStart === form.getValues().surahEnd ? '' : `to ${form.getValues().surahEnd}`}</span>
                   </div>
                 </div>
               </div>

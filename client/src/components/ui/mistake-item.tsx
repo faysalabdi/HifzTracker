@@ -60,7 +60,7 @@ export function MistakeItem({ mistake, sessionId, onEdit }: MistakeItemProps) {
         <div className="flex items-center mb-1">
           <h4 className="font-medium">{mistakeLabel}</h4>
           <span className="ml-2 text-xs text-neutral-500">
-            Page {mistake.page}, Line {mistake.line}
+            {mistake.surah}, Ayah {mistake.ayah}
           </span>
         </div>
         <p className="text-sm text-neutral-600">{mistake.description}</p>

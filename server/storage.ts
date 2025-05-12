@@ -262,8 +262,7 @@ export class MemStorage implements IStorage {
     const distribution: Record<MistakeType, number> = {
       tajweed: 0,
       word: 0,
-      hesitation: 0,
-      other: 0
+      stuck: 0
     };
     
     mistakes.forEach(mistake => {
