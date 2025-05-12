@@ -201,6 +201,7 @@ export function EditStudentDialog({ isOpen, onClose, student }: EditStudentDialo
                       placeholder="Add any notes about the student here..." 
                       className="resize-none"
                       {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />

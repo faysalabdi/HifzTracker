@@ -37,6 +37,11 @@ export default function StudentDetail() {
   const [, params] = useRoute<{ id: string }>("/students/:id");
   const studentId = params ? parseInt(params.id) : 0;
   const [activeTab, setActiveTab] = useState("overview");
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const navigate = () => window.location.href = "/students";
 
   // Fetch student data
   const { data: student, isLoading: isLoadingStudent } = useQuery<StudentWithStats>({
@@ -54,6 +59,33 @@ export default function StudentDetail() {
   const { data: mistakes, isLoading: isLoadingMistakes } = useQuery<Mistake[]>({
     queryKey: [`/api/mistakes/student/${studentId}`],
     enabled: !!studentId
+  });
+  
+  // Delete student mutation
+  const deleteStudentMutation = useMutation({
+    mutationFn: async () => {
+      setIsDeleting(true);
+      try {
+        return apiRequest('DELETE', `/api/students/${studentId}`);
+      } finally {
+        setIsDeleting(false);
+      }
+    },
+    onSuccess: () => {
+      toast({
+        title: "Student deleted",
+        description: "The student has been deleted successfully."
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/students'] });
+      navigate();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete student: ${error.message}`,
+        variant: "destructive"
+      });
+    }
   });
 
   // Calculate mistake type distribution
@@ -144,10 +176,31 @@ export default function StudentDetail() {
                 <div className="flex-grow">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                     <h3 className="text-2xl font-heading font-semibold">{student.name}</h3>
-                    <Button variant="outline" size="sm" className="sm:ml-auto">
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit Profile
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="sm:ml-auto"
+                        onClick={() => setShowEditDialog(true)}
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit Profile
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-error hover:text-error"
+                        onClick={() => {
+                          if (window.confirm("Are you sure you want to delete this student? This action cannot be undone.")) {
+                            deleteStudentMutation.mutate();
+                          }
+                        }}
+                        disabled={isDeleting || deleteStudentMutation.isPending}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {isDeleting ? "Deleting..." : "Delete"}
+                      </Button>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-3 mb-4">
                     <Badge variant="outline" className="bg-neutral-50">
@@ -468,6 +521,15 @@ export default function StudentDetail() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Student Dialog */}
+      {student && (
+        <EditStudentDialog
+          isOpen={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
+          student={student}
+        />
+      )}
     </div>
   );
 }
