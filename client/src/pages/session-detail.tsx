@@ -276,35 +276,69 @@ export default function SessionDetail() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Quran Reference</CardTitle>
-            <CardDescription>Pages {session.pageStart}-{session.pageEnd} of {session.surah}</CardDescription>
+            <CardDescription>Surah {session.surahStart} Ayah {session.ayahStart} - Surah {session.surahEnd} Ayah {session.ayahEnd}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="border border-neutral-200 rounded-lg overflow-hidden mb-4">
-              <img 
-                src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=300" 
-                alt="Quran page with Arabic text" 
-                className="w-full h-40 object-cover"
-              />
-              <div className="p-4 bg-neutral-50">
-                <div dir="rtl" className="text-center font-['Amiri'] text-lg leading-loose mb-2 text-neutral-800">
-                  وَلَقَدْ آتَيْنَا مُوسَى الْكِتَابَ وَقَفَّيْنَا مِن بَعْدِهِ بِالرُّسُلِ ۖ وَآتَيْنَا عِيسَى ابْنَ مَرْيَمَ الْبَيِّنَاتِ وَأَيَّدْنَاهُ بِرُوحِ الْقُدُسِ
+            <div className={`rounded-lg overflow-hidden mb-6 p-6 ${
+              session.id % 3 === 0 
+                ? "bg-gradient-to-r from-teal-50 to-emerald-50 border-l-4 border-emerald-500" 
+                : session.id % 3 === 1 
+                  ? "bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-500" 
+                  : "bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500"
+            }`}>
+              <div className="flex items-start mb-4">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 ${
+                  session.id % 3 === 0 
+                    ? "bg-emerald-100 text-emerald-700" 
+                    : session.id % 3 === 1 
+                      ? "bg-amber-100 text-amber-700" 
+                      : "bg-blue-100 text-blue-700"
+                }`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                  </svg>
                 </div>
-                <div className="flex justify-between items-center text-sm text-neutral-500">
-                  <span>{session.surah} (2:87)</span>
-                  <span>Page {session.pageStart}</span>
+                <div>
+                  <h3 className={`font-semibold mb-1 ${
+                    session.id % 3 === 0 
+                      ? "text-emerald-800" 
+                      : session.id % 3 === 1 
+                        ? "text-amber-800" 
+                        : "text-blue-800"
+                  }`}>Revision Session #{session.id}</h3>
+                  <p className="text-sm text-gray-600">{format(new Date(session.date), 'PPP')}</p>
                 </div>
               </div>
-            </div>
-            
-            <div className="text-center">
-              <p className="text-sm text-neutral-600 mb-3">
-                Use the reference to identify passages where mistakes were made.
+              
+              <div dir="rtl" className="text-center font-['Amiri'] text-xl leading-loose p-4 rounded-lg mb-4 bg-white bg-opacity-60">
+                <div className={`mb-3 text-sm font-sans text-center ${
+                  session.id % 3 === 0 
+                    ? "text-emerald-600" 
+                    : session.id % 3 === 1 
+                      ? "text-amber-600" 
+                      : "text-blue-600"
+                }`}>
+                  {session.surahStart} {session.ayahStart} - {session.surahEnd} {session.ayahEnd}
+                </div>
+                <div className="text-neutral-800">
+                  {session.id % 3 === 0 
+                    ? "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\nٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ\nٱلرَّحْمَٰنِ ٱلرَّحِيمِ\nمَٰلِكِ يَوْمِ ٱلدِّينِ"
+                    : session.id % 3 === 1 
+                      ? "قُلْ هُوَ ٱللَّهُ أَحَدٌ\nٱللَّهُ ٱلصَّمَدُ\nلَمْ يَلِدْ وَلَمْ يُولَدْ\nوَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ"
+                      : "وَٱلْعَصْرِ\nإِنَّ ٱلْإِنسَٰنَ لَفِى خُسْرٍ\nإِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ"}
+                </div>
+              </div>
+              
+              <p className={`text-sm ${
+                session.id % 3 === 0 
+                  ? "text-emerald-600" 
+                  : session.id % 3 === 1 
+                    ? "text-amber-600" 
+                    : "text-blue-600"
+              } text-center`}>
+                Use the reference to identify passages where mistakes were made
               </p>
-              <img 
-                src="https://pixabay.com/get/g9069e65962bb692d3afc99c42030ae943f2a26404b029f12fc428f483a00678f5c0118f73b2639d7cb0444f542e20ae0e1b019a6684576149a5ccbc6cc85c9d8_1280.jpg" 
-                alt="Quran text with tajweed markings" 
-                className="w-full h-32 object-cover rounded-lg" 
-              />
             </div>
           </CardContent>
         </Card>
