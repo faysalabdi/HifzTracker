@@ -359,7 +359,11 @@ export class MemStorage implements IStorage {
         // Set the most common mistake type for this date
         // In a real implementation, you'd track counts of each type and pick the most common
         // For simplicity, we'll just use the most recent one
-        resultItem.mistakeType = mistake.type;
+        // Use type assertion with a type guard to ensure valid MistakeType
+        const mistakeType = mistake.type;
+        if (mistakeType === "tajweed" || mistakeType === "word" || mistakeType === "stuck") {
+          resultItem.mistakeType = mistakeType;
+        }
       }
     });
     

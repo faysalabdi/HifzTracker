@@ -374,9 +374,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const trend = await storage.getMistakeTrend(days);
         res.json(trend);
       } else {
-        // Return progress for a specific student
-        const progress = await storage.getStudentProgress(studentId, days);
-        res.json(progress);
+        try {
+          // Check if student exists
+          const student = await storage.getStudent(studentId);
+          if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+          }
+          
+          // Return progress for a specific student
+          const progress = await storage.getStudentProgress(studentId, days);
+          res.json(progress);
+        } catch (err) {
+          console.error("Error getting specific student progress:", err);
+          res.status(500).json({ message: "Failed to retrieve student progress data" });
+        }
       }
     } catch (error) {
       console.error("Error getting student progress:", error);
