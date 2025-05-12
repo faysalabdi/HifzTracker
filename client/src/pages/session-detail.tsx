@@ -31,6 +31,82 @@ import {
 import { formatDate, getInitials } from "@/lib/constants";
 import { SessionWithDetails, Mistake } from "@shared/schema";
 
+// Function to get Ayah preview text based on Surah and Ayah number
+const getAyahPreview = (surahName: string, ayahNumber: number): string => {
+  // Map common Surahs to their actual text
+  // In a production app, this would be fetched from an API or database
+  const ayahMap: Record<string, Record<number, string>> = {
+    "Al-Fatiha": {
+      1: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+      2: "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ",
+      3: "ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+      4: "مَٰلِكِ يَوْمِ ٱلدِّينِ",
+      5: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+      6: "ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ",
+      7: "صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ"
+    },
+    "Al-Ikhlas": {
+      1: "قُلْ هُوَ ٱللَّهُ أَحَدٌ",
+      2: "ٱللَّهُ ٱلصَّمَدُ",
+      3: "لَمْ يَلِدْ وَلَمْ يُولَدْ",
+      4: "وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ"
+    },
+    "Al-Falaq": {
+      1: "قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ",
+      2: "مِن شَرِّ مَا خَلَقَ",
+      3: "وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ",
+      4: "وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِى ٱلْعُقَدِ",
+      5: "وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ"
+    },
+    "Al-Nas": {
+      1: "قُلْ أَعُوذُ بِرَبِّ ٱلنَّاسِ",
+      2: "مَلِكِ ٱلنَّاسِ",
+      3: "إِلَٰهِ ٱلنَّاسِ",
+      4: "مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ",
+      5: "ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ",
+      6: "مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ"
+    },
+    "Al-Asr": {
+      1: "وَٱلْعَصْرِ",
+      2: "إِنَّ ٱلْإِنسَٰنَ لَفِى خُسْرٍ",
+      3: "إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ"
+    },
+    "Al-Baqarah": {
+      1: "الٓمٓ",
+      2: "ذَٰلِكَ ٱلْكِتَٰبُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ",
+      3: "ٱلَّذِينَ يُؤْمِنُونَ بِٱلْغَيْبِ وَيُقِيمُونَ ٱلصَّلَوٰةَ وَمِمَّا رَزَقْنَٰهُمْ يُنفِقُونَ",
+      4: "وَٱلَّذِينَ يُؤْمِنُونَ بِمَآ أُنزِلَ إِلَيْكَ وَمَآ أُنزِلَ مِن قَبْلِكَ وَبِٱلْءَاخِرَةِ هُمْ يُوقِنُونَ",
+      5: "أُو۟لَٰٓئِكَ عَلَىٰ هُدًى مِّن رَّبِّهِمْ ۖ وَأُو۟لَٰٓئِكَ هُمُ ٱلْمُفْلِحُونَ",
+      255: "ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ ۚ لَا تَأْخُذُهُۥ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُۥ مَا فِى ٱلسَّمَٰوَٰتِ وَمَا فِى ٱلْأَرْضِ ۗ مَن ذَا ٱلَّذِى يَشْفَعُ عِندَهُۥٓ إِلَّا بِإِذْنِهِۦ"
+    }
+  };
+
+  // Try to get the specific Ayah text
+  if (ayahMap[surahName] && ayahMap[surahName][ayahNumber]) {
+    return ayahMap[surahName][ayahNumber];
+  }
+
+  // Fall back to generic text based on Surah name with a note that this is just a preview
+  if (surahName === "Al-Fatiha") {
+    return "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ مَٰلِكِ يَوْمِ ٱلدِّينِ...";
+  } else if (surahName === "Al-Ikhlas") {
+    return "قُلْ هُوَ ٱللَّهُ أَحَدٌ ٱللَّهُ ٱلصَّمَدُ لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ";
+  } else if (surahName === "Al-Asr") {
+    return "وَٱلْعَصْرِ إِنَّ ٱلْإِنسَٰنَ لَفِى خُسْرٍ إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ";
+  } else if (surahName === "Al-Baqarah") {
+    if (ayahNumber <= 5) {
+      return "الٓمٓ ذَٰلِكَ ٱلْكِتَٰبُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ ٱلَّذِينَ يُؤْمِنُونَ بِٱلْغَيْبِ وَيُقِيمُونَ ٱلصَّلَوٰةَ...";
+    } else if (ayahNumber === 255) {
+      return "ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ ۚ لَا تَأْخُذُهُۥ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُۥ مَا فِى ٱلسَّمَٰوَٰتِ وَمَا فِى ٱلْأَرْضِ...";
+    } else {
+      return "آيات من سورة البقرة. (هذا مجرد نموذج للآية " + ayahNumber + ")";
+    }
+  }
+
+  // Default message for other Surahs
+  return "آيات من سورة " + surahName + " الآية " + ayahNumber + " (هذا مجرد نموذج)";
+};
+
 export default function SessionDetail() {
   const [, params] = useRoute<{ id: string }>("/sessions/:id");
   const sessionId = params ? parseInt(params.id) : 0;
@@ -60,9 +136,7 @@ export default function SessionDetail() {
   // Complete session mutation
   const completeSessionMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest(`/api/sessions/${sessionId}/complete`, {
-        method: 'PUT'
-      });
+      return apiRequest('PUT', `/api/sessions/${sessionId}/complete`);
     },
     onSuccess: () => {
       toast({
@@ -324,22 +398,8 @@ export default function SessionDetail() {
                   {session.surahStart} {session.ayahStart} - {session.surahEnd} {session.ayahEnd}
                 </div>
                 <div className="text-neutral-800">
-                  {/* Display specific Ayat based on Surah/Ayah information */}
-                  {session.surahStart === "Al-Fatiha" ? 
-                    "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ مَٰلِكِ يَوْمِ ٱلدِّينِ"
-                  : session.surahStart === "Al-Ikhlas" ?
-                    "قُلْ هُوَ ٱللَّهُ أَحَدٌ ٱللَّهُ ٱلصَّمَدُ لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ"
-                  : session.surahStart === "Al-Asr" ?
-                    "وَٱلْعَصْرِ إِنَّ ٱلْإِنسَٰنَ لَفِى خُسْرٍ إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ"
-                  : session.surahStart === "Al-Baqarah" && session.ayahStart <= 5 ?
-                    "الٓمٓ ذَٰلِكَ ٱلْكِتَٰبُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ ٱلَّذِينَ يُؤْمِنُونَ بِٱلْغَيْبِ وَيُقِيمُونَ ٱلصَّلَوٰةَ"
-                  : session.surahStart === "Al-Baqarah" ?
-                    "... مُّحَمَّدٌ رَّسُولُ ٱللَّهِ ۚ وَٱلَّذِينَ مَعَهُۥٓ أَشِدَّآءُ عَلَى ٱلْكُفَّارِ رُحَمَآءُ بَيْنَهُمْ ..."
-                  : session.surahStart === session.surahEnd ?
-                    "... إِنَّ اللَّهَ وَمَلائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَسَلِّمُوا تَسْلِيمًا ..."
-                  :
-                    "... مِن شَرِّ مَا خَلَقَ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ..."
-                  }
+                  {/* Display Ayah preview based on the Surah being read */}
+                  {getAyahPreview(session.surahStart, session.ayahStart)}
                 </div>
               </div>
               
