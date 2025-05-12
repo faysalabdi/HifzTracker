@@ -35,7 +35,7 @@ import { Student, StudentWithStats } from "@shared/schema";
 // Component for displaying improvement data for a specific student
 export default function ProgressPage() {
   // State to track selected student and time period
-  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("all");
   const [timePeriod, setTimePeriod] = useState<string>("30");
 
   // Fetch all students
@@ -56,14 +56,14 @@ export default function ProgressPage() {
   // Student-specific progress (will be fetched when a student is selected)
   const { data: studentProgress = [], isLoading: isLoadingStudentProgress } = useQuery({
     queryKey: ["/api/students/progress", { 
-      studentId: selectedStudentId ? parseInt(selectedStudentId) : 0,
+      studentId: selectedStudentId !== "all" ? parseInt(selectedStudentId) : 0,
       days: parseInt(timePeriod)
     }],
-    enabled: !!selectedStudentId
+    enabled: true
   });
 
   // Get the selected student
-  const selectedStudent = selectedStudentId 
+  const selectedStudent = selectedStudentId !== "all" 
     ? studentsWithStats.find(s => s.id === parseInt(selectedStudentId)) 
     : null;
 
@@ -166,7 +166,7 @@ export default function ProgressPage() {
               <SelectValue placeholder="Select Student" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Students</SelectItem>
+              <SelectItem value="all">All Students</SelectItem>
               {students.map(student => (
                 <SelectItem key={student.id} value={student.id.toString()}>
                   {student.name}
