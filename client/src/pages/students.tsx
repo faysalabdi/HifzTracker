@@ -33,7 +33,7 @@ export default function Students() {
         <h2 className="text-2xl font-heading font-semibold">Students</h2>
         <Button 
           onClick={() => setShowAddStudentDialog(true)}
-          className="bg-primary-500 hover:bg-primary-600 text-white transition-colors"
+          className="bg-primary-500 hover:bg-primary-600 text-white transition-colors block"
         >
           <UserPlus className="mr-2 h-4 w-4" />
           Add Student
@@ -65,6 +65,15 @@ export default function Students() {
       ) : (
         <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-neutral-100">
           {searchTerm ? "No students match your search" : "No students found. Add your first student!"}
+          {!searchTerm && (
+            <Button 
+              onClick={() => setShowAddStudentDialog(true)}
+              className="bg-primary-500 hover:bg-primary-600 text-white transition-colors mt-4"
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              Add Your First Student
+            </Button>
+          )}
         </div>
       )}
       
