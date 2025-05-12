@@ -232,7 +232,7 @@ export default function NewSession() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">Select student</SelectItem>
+                          {/* Don't use empty string for value */}
                           {students?.map((student) => (
                             <SelectItem key={student.id} value={student.id.toString()}>
                               {student.name}
@@ -262,7 +262,7 @@ export default function NewSession() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">Select student</SelectItem>
+                          {/* Don't use empty string for value */}
                           {students?.map((student) => (
                             <SelectItem key={student.id} value={student.id.toString()}>
                               {student.name}
@@ -424,32 +424,28 @@ export default function NewSession() {
                   className="w-full h-40 object-cover"
                 />
                 <div className="p-4 bg-neutral-50">
-                  <div dir="rtl" className="text-center font-['Amiri'] text-xl leading-loose mb-2 text-neutral-800">
-                    وَلَقَدْ آتَيْنَا مُوسَى الْكِتَابَ وَقَفَّيْنَا مِن بَعْدِهِ بِالرُّسُلِ ۖ وَآتَيْنَا عِيسَى ابْنَ مَرْيَمَ الْبَيِّنَاتِ وَأَيَّدْنَاهُ بِرُوحِ الْقُدُسِ ۗ أَفَكُلَّمَا جَاءَكُمْ رَسُولٌ بِمَا لَا تَهْوَىٰ أَنفُسُكُمُ اسْتَكْبَرْتُمْ فَفَرِيقًا كَذَّبْتُمْ وَفَرِيقًا تَقْتُلُونَ
-                  </div>
-                  <div className="flex justify-between items-center text-sm text-neutral-500">
-                    <span>{form.getValues().surahStart} {form.getValues().ayahStart}-{form.getValues().ayahEnd}</span>
-                    <span>{form.getValues().surahStart === form.getValues().surahEnd ? '' : `to ${form.getValues().surahEnd}`}</span>
-                  </div>
+                  <p className="text-sm font-medium mb-2">Revision Range</p>
+                  <p className="text-sm text-neutral-600">
+                    {form.getValues().surahStart} {form.getValues().ayahStart} to {form.getValues().surahEnd} {form.getValues().ayahEnd}
+                  </p>
                 </div>
               </div>
               
-              {isLoadingMistakes ? (
-                <div className="text-center py-4">Loading mistakes...</div>
-              ) : student1Mistakes.length > 0 ? (
-                <div className="space-y-3">
-                  {student1Mistakes.map(mistake => (
+              {/* Mistakes */}
+              <div className="space-y-3">
+                {student1Mistakes.length === 0 ? (
+                  <p className="text-neutral-500 text-center py-4">No mistakes recorded yet</p>
+                ) : (
+                  student1Mistakes.map((mistake) => (
                     <MistakeItem 
                       key={mistake.id} 
                       mistake={mistake} 
-                      sessionId={form.getValues().id} 
+                      sessionId={sessionId || 0}
                       onEdit={() => handleEditMistake(mistake)}
                     />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-neutral-500 py-8">No mistakes recorded yet. Use the button above to add mistakes.</p>
-              )}
+                  ))
+                )}
+              </div>
             </CardContent>
           </Card>
           
@@ -468,31 +464,28 @@ export default function NewSession() {
               </Button>
             </CardHeader>
             <CardContent className="p-5">
-              {isLoadingMistakes ? (
-                <div className="text-center py-4">Loading mistakes...</div>
-              ) : student2Mistakes.length > 0 ? (
-                <div className="space-y-3">
-                  {student2Mistakes.map(mistake => (
+              {/* Mistakes */}
+              <div className="space-y-3">
+                {student2Mistakes.length === 0 ? (
+                  <p className="text-neutral-500 text-center py-4">No mistakes recorded yet</p>
+                ) : (
+                  student2Mistakes.map((mistake) => (
                     <MistakeItem 
                       key={mistake.id} 
                       mistake={mistake} 
-                      sessionId={form.getValues().id} 
+                      sessionId={sessionId || 0}
                       onEdit={() => handleEditMistake(mistake)}
                     />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-neutral-500 py-8">No mistakes recorded yet. Use the button above to add mistakes.</p>
-              )}
+                  ))
+                )}
+              </div>
             </CardContent>
           </Card>
           
-          <div className="flex justify-end gap-3 mt-6">
-            <Button variant="outline">
-              Save as Draft
-            </Button>
+          {/* Complete session */}
+          <div className="flex justify-end">
             <Button 
-              onClick={() => completeSessionMutation.mutate(form.getValues().id)}
+              onClick={() => form.getValues().id && completeSessionMutation.mutate(form.getValues().id)}
               disabled={completeSessionMutation.isPending}
             >
               {completeSessionMutation.isPending ? "Completing..." : "Complete Session"}
@@ -501,29 +494,27 @@ export default function NewSession() {
         </>
       )}
       
-      {/* Add Mistake Dialog for Student 1 */}
-      <AddMistakeDialog
-        isOpen={showMistakeDialogStudent1}
-        onClose={() => {
-          setShowMistakeDialogStudent1(false);
-          setEditingMistake(undefined);
-        }}
-        sessionId={form.getValues().id}
-        studentId={form.getValues().student1Id}
-        editingMistake={editingMistake}
-      />
+      {/* Add mistake dialog for student 1 */}
+      {showMistakeDialogStudent1 && sessionId && (
+        <AddMistakeDialog
+          isOpen={showMistakeDialogStudent1}
+          onClose={() => setShowMistakeDialogStudent1(false)}
+          sessionId={sessionId}
+          studentId={form.getValues().student1Id}
+          editingMistake={editingMistake}
+        />
+      )}
       
-      {/* Add Mistake Dialog for Student 2 */}
-      <AddMistakeDialog
-        isOpen={showMistakeDialogStudent2}
-        onClose={() => {
-          setShowMistakeDialogStudent2(false);
-          setEditingMistake(undefined);
-        }}
-        sessionId={form.getValues().id}
-        studentId={form.getValues().student2Id}
-        editingMistake={editingMistake}
-      />
+      {/* Add mistake dialog for student 2 */}
+      {showMistakeDialogStudent2 && sessionId && (
+        <AddMistakeDialog
+          isOpen={showMistakeDialogStudent2}
+          onClose={() => setShowMistakeDialogStudent2(false)}
+          sessionId={sessionId}
+          studentId={form.getValues().student2Id}
+          editingMistake={editingMistake}
+        />
+      )}
     </div>
   );
 }
