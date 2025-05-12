@@ -139,7 +139,7 @@ export default function SessionDetail() {
   // Complete session mutation
   const completeSessionMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest('PUT', `/api/sessions/${sessionId}/complete`);
+      return apiRequest('POST', `/api/sessions/${sessionId}/complete`);
     },
     onSuccess: () => {
       toast({
@@ -376,6 +376,30 @@ export default function SessionDetail() {
                   </Button>
                 </div>
               )}
+              
+              {/* Delete Session Section */}
+              <div className="border-t border-neutral-200 mt-6 pt-6">
+                <div className="bg-red-50 rounded-lg p-4 flex items-center justify-between border border-red-200">
+                  <div>
+                    <h3 className="font-medium mb-1 text-red-700">Delete Session</h3>
+                    <p className="text-sm text-red-600">
+                      This action cannot be undone. All session data will be permanently removed.
+                    </p>
+                  </div>
+                  <Button 
+                    variant="destructive"
+                    onClick={() => {
+                      if (window.confirm("Are you sure you want to delete this session? This action cannot be undone.")) {
+                        deleteSessionMutation.mutate();
+                      }
+                    }}
+                    disabled={isDeleting || deleteSessionMutation.isPending}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {isDeleting ? "Deleting..." : "Delete Session"}
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
