@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
 import { 
   Card, 
@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { MistakeItem } from "@/components/ui/mistake-item";
+import { EditStudentDialog } from "@/components/ui/edit-student-dialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import { 
   User, 
@@ -23,7 +26,8 @@ import {
   Edit,
   AlertTriangle,
   FileText,
-  BarChart2
+  BarChart2,
+  Trash2
 } from "lucide-react";
 
 import { SessionWithDetails, StudentWithStats, Mistake } from "@shared/schema";
