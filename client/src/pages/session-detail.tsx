@@ -38,115 +38,113 @@ export default function SessionDetail() {
   const [activeStudentId, setActiveStudentId] = useState<number | null>(null);
   const [editingMistake, setEditingMistake] = useState<Mistake | undefined>(undefined);
   const { toast } = useToast();
+  
   const queryClient = useQueryClient();
-
-  // Fetch session data
+  
+  // Fetch session details
   const { data: session, isLoading: isLoadingSession } = useQuery<SessionWithDetails>({
     queryKey: [`/api/sessions/${sessionId}`],
-    enabled: !!sessionId
+    enabled: sessionId > 0
   });
-
+  
   // Fetch mistakes for this session
-  const { data: mistakes, isLoading: isLoadingMistakes } = useQuery<Mistake[]>({
+  const { data: mistakes = [], isLoading: isLoadingMistakes } = useQuery<Mistake[]>({
     queryKey: [`/api/mistakes/session/${sessionId}`],
-    enabled: !!sessionId
+    enabled: sessionId > 0
   });
 
+  // Filter mistakes by student
+  const student1Mistakes = mistakes.filter(m => m.studentId === session?.student1Id);
+  const student2Mistakes = mistakes.filter(m => m.studentId === session?.student2Id);
+  
   // Complete session mutation
   const completeSessionMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", `/api/sessions/${sessionId}/complete`);
+      return apiRequest(`/api/sessions/${sessionId}/complete`, {
+        method: 'PUT'
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/sessions/${sessionId}`] });
-      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/sessions/recent"] });
       toast({
         title: "Session completed",
-        description: "The revision session has been marked as complete",
+        description: "The session has been marked as complete."
       });
+      queryClient.invalidateQueries({ queryKey: [`/api/sessions/${sessionId}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/sessions/recent'] });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to complete session",
-        variant: "destructive",
+        description: "Failed to complete the session.",
+        variant: "destructive"
       });
     }
   });
-
-  // Filter mistakes by student
-  const student1Mistakes = mistakes?.filter(m => m.studentId === session?.student1Id) || [];
-  const student2Mistakes = mistakes?.filter(m => m.studentId === session?.student2Id) || [];
-
-  // Handle edit mistake
+  
+  // Helper function to get color based on mistake count
+  function getMistakeCountColor(count: number): string {
+    if (count === 0) return "text-primary-500";
+    if (count <= 2) return "text-amber-500";
+    return "text-error";
+  }
+  
+  // Helper function to get random color for avatars
+  function getAvatarColor(name: string): string {
+    const colors = [
+      "bg-primary-100 text-primary-800",
+      "bg-secondary-100 text-secondary-800",
+      "bg-accent-100 text-accent-800",
+      "bg-sky-100 text-sky-800",
+      "bg-lime-100 text-lime-800"
+    ];
+    
+    const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+  }
+  
+  // Handle editing a mistake
   const handleEditMistake = (mistake: Mistake) => {
     setEditingMistake(mistake);
     setActiveStudentId(mistake.studentId);
     setShowAddMistakeDialog(true);
   };
-
-  // Get avatar color based on name
-  const getAvatarColor = (name?: string) => {
-    if (!name) return "bg-primary-50 text-primary-500";
-    const colors = [
-      "bg-primary-50 text-primary-500",
-      "bg-secondary-50 text-secondary-500",
-      "bg-accent-50 text-accent-500"
-    ];
-    const index = name.length % colors.length;
-    return colors[index];
-  };
-
-  // Get mistake count color class
-  const getMistakeCountColor = (count: number) => {
-    if (count <= 3) return "text-success";
-    if (count <= 7) return "text-warning";
-    return "text-error";
-  };
-
+  
   if (isLoadingSession) {
     return (
-      <div className="p-4 md:p-6 flex items-center justify-center h-[calc(100vh-64px)]">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p>Loading session information...</p>
-        </div>
+      <div className="py-10 flex justify-center">
+        <p>Loading session details...</p>
       </div>
     );
   }
-
+  
   if (!session) {
     return (
-      <div className="p-4 md:p-6">
-        <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-8 text-center">
-          <AlertTriangle className="h-12 w-12 text-warning mx-auto mb-4" />
-          <h2 className="text-2xl font-heading font-semibold mb-2">Session Not Found</h2>
-          <p className="text-neutral-600 mb-6">The session you're looking for doesn't exist or has been removed.</p>
-          <Link href="/">
-            <Button>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
+      <div className="py-10 flex flex-col items-center">
+        <p className="mb-4">Session not found</p>
+        <Link href="/dashboard">
+          <Button variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </Link>
       </div>
     );
   }
-
+  
   return (
-    <div className="p-4 md:p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Link href="/">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ArrowLeft className="h-4 w-4" />
+    <div className="container py-6">
+      <div className="flex items-center mb-6">
+        <Link href="/dashboard">
+          <Button variant="ghost" className="mr-2">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
           </Button>
         </Link>
-        <h2 className="text-2xl font-heading font-semibold">Session Details</h2>
+        <h1 className="text-2xl font-bold">Session Details</h1>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="md:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2">
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
@@ -197,20 +195,20 @@ export default function SessionDetail() {
                   <AlertTriangle className="h-5 w-5 text-warning mt-0.5" />
                   <div>
                     <p className="text-xs text-neutral-500">Total Mistakes</p>
-                    <p className="font-medium">{session.mistakeCount}</p>
+                    <p className="font-medium">{mistakes.length}</p>
                   </div>
                 </div>
                 
                 <div className="bg-neutral-50 p-3 rounded-lg flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-success mt-0.5" />
+                  <Users className="h-5 w-5 text-secondary-500 mt-0.5" />
                   <div>
-                    <p className="text-xs text-neutral-500">Status</p>
-                    <p className="font-medium">{session.completed ? "Completed" : "In Progress"}</p>
+                    <p className="text-xs text-neutral-500">Students</p>
+                    <p className="font-medium">{session.student1.name}, {session.student2.name}</p>
                   </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
@@ -257,19 +255,23 @@ export default function SessionDetail() {
                   </CardContent>
                 </Card>
               </div>
+              
+              {!session.completed && (
+                <div className="bg-neutral-50 rounded-lg p-4 flex items-center justify-between border border-neutral-200">
+                  <div>
+                    <h3 className="font-medium mb-1">Ready to Complete</h3>
+                    <p className="text-sm text-neutral-600">Once completed, no more mistakes can be added to this session.</p>
+                  </div>
+                  <Button 
+                    onClick={() => completeSessionMutation.mutate()}
+                    disabled={completeSessionMutation.isPending}
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    {completeSessionMutation.isPending ? "Completing..." : "Complete Session"}
+                  </Button>
+                </div>
+              )}
             </CardContent>
-            
-            {!session.completed && (
-              <CardFooter className="border-t border-neutral-100 pt-4">
-                <Button 
-                  className="w-full"
-                  onClick={() => completeSessionMutation.mutate()}
-                  disabled={completeSessionMutation.isPending}
-                >
-                  {completeSessionMutation.isPending ? "Completing..." : "Complete Session"}
-                </Button>
-              </CardFooter>
-            )}
           </Card>
         </div>
         
@@ -322,11 +324,22 @@ export default function SessionDetail() {
                   {session.surahStart} {session.ayahStart} - {session.surahEnd} {session.ayahEnd}
                 </div>
                 <div className="text-neutral-800">
-                  {session.id % 3 === 0 
-                    ? "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\nٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ\nٱلرَّحْمَٰنِ ٱلرَّحِيمِ\nمَٰلِكِ يَوْمِ ٱلدِّينِ"
-                    : session.id % 3 === 1 
-                      ? "قُلْ هُوَ ٱللَّهُ أَحَدٌ\nٱللَّهُ ٱلصَّمَدُ\nلَمْ يَلِدْ وَلَمْ يُولَدْ\nوَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ"
-                      : "وَٱلْعَصْرِ\nإِنَّ ٱلْإِنسَٰنَ لَفِى خُسْرٍ\nإِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ"}
+                  {/* Display specific Ayat based on Surah/Ayah information */}
+                  {session.surahStart === "Al-Fatiha" ? 
+                    "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ مَٰلِكِ يَوْمِ ٱلدِّينِ"
+                  : session.surahStart === "Al-Ikhlas" ?
+                    "قُلْ هُوَ ٱللَّهُ أَحَدٌ ٱللَّهُ ٱلصَّمَدُ لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ"
+                  : session.surahStart === "Al-Asr" ?
+                    "وَٱلْعَصْرِ إِنَّ ٱلْإِنسَٰنَ لَفِى خُسْرٍ إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ"
+                  : session.surahStart === "Al-Baqarah" && session.ayahStart <= 5 ?
+                    "الٓمٓ ذَٰلِكَ ٱلْكِتَٰبُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ ٱلَّذِينَ يُؤْمِنُونَ بِٱلْغَيْبِ وَيُقِيمُونَ ٱلصَّلَوٰةَ"
+                  : session.surahStart === "Al-Baqarah" ?
+                    "... مُّحَمَّدٌ رَّسُولُ ٱللَّهِ ۚ وَٱلَّذِينَ مَعَهُۥٓ أَشِدَّآءُ عَلَى ٱلْكُفَّارِ رُحَمَآءُ بَيْنَهُمْ ..."
+                  : session.surahStart === session.surahEnd ?
+                    "... إِنَّ اللَّهَ وَمَلائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَسَلِّمُوا تَسْلِيمًا ..."
+                  :
+                    "... مِن شَرِّ مَا خَلَقَ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ..."
+                  }
                 </div>
               </div>
               
@@ -364,28 +377,26 @@ export default function SessionDetail() {
                   setShowAddMistakeDialog(true);
                 }}
               >
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="h-4 w-4 mr-1" />
                 Add Mistake
               </Button>
             )}
           </CardHeader>
-          <CardContent>
-            {isLoadingMistakes ? (
-              <div className="text-center py-4">Loading mistakes...</div>
-            ) : student1Mistakes.length > 0 ? (
-              <div className="space-y-3">
-                {student1Mistakes.map((mistake) => (
-                  <MistakeItem 
-                    key={mistake.id} 
-                    mistake={mistake}
-                    sessionId={sessionId}
-                    onEdit={!session.completed ? () => handleEditMistake(mistake) : undefined}
-                  />
-                ))}
+          <CardContent className="p-4">
+            {student1Mistakes.length === 0 ? (
+              <div className="py-8 text-center text-neutral-500">
+                No mistakes recorded yet
               </div>
             ) : (
-              <div className="text-center py-8 text-neutral-500">
-                No mistakes recorded for this student
+              <div className="space-y-3">
+                {student1Mistakes.map(mistake => (
+                  <MistakeItem 
+                    key={mistake.id} 
+                    mistake={mistake} 
+                    sessionId={sessionId}
+                    onEdit={() => handleEditMistake(mistake)}
+                  />
+                ))}
               </div>
             )}
           </CardContent>
@@ -410,36 +421,33 @@ export default function SessionDetail() {
                   setShowAddMistakeDialog(true);
                 }}
               >
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="h-4 w-4 mr-1" />
                 Add Mistake
               </Button>
             )}
           </CardHeader>
-          <CardContent>
-            {isLoadingMistakes ? (
-              <div className="text-center py-4">Loading mistakes...</div>
-            ) : student2Mistakes.length > 0 ? (
-              <div className="space-y-3">
-                {student2Mistakes.map((mistake) => (
-                  <MistakeItem 
-                    key={mistake.id} 
-                    mistake={mistake}
-                    sessionId={sessionId}
-                    onEdit={!session.completed ? () => handleEditMistake(mistake) : undefined}
-                  />
-                ))}
+          <CardContent className="p-4">
+            {student2Mistakes.length === 0 ? (
+              <div className="py-8 text-center text-neutral-500">
+                No mistakes recorded yet
               </div>
             ) : (
-              <div className="text-center py-8 text-neutral-500">
-                No mistakes recorded for this student
+              <div className="space-y-3">
+                {student2Mistakes.map(mistake => (
+                  <MistakeItem 
+                    key={mistake.id} 
+                    mistake={mistake} 
+                    sessionId={sessionId}
+                    onEdit={() => handleEditMistake(mistake)}
+                  />
+                ))}
               </div>
             )}
           </CardContent>
         </Card>
       </div>
       
-      {/* Add Mistake Dialog */}
-      {activeStudentId && (
+      {showAddMistakeDialog && activeStudentId && (
         <AddMistakeDialog
           isOpen={showAddMistakeDialog}
           onClose={() => {
