@@ -393,10 +393,8 @@ export class MemStorage implements IStorage {
     // Sample students
     const sampleStudents: InsertStudent[] = [
       { name: "Ahmad Hassan", grade: "3", currentJuz: 5, currentSurah: "Al-Baqarah", notes: "" },
-      { name: "Zaynab Khan", grade: "4", currentJuz: 10, currentSurah: "Yunus", notes: "" },
       { name: "Ibrahim Omar", grade: "3", currentJuz: 7, currentSurah: "Al-A'raf", notes: "" },
       { name: "Yusuf Ali", grade: "2", currentJuz: 3, currentSurah: "Al-Baqarah", notes: "" },
-      { name: "Aisha Patel", grade: "4", currentJuz: 12, currentSurah: "Hud", notes: "" },
       { name: "Mohammed Siddiq", grade: "2", currentJuz: 2, currentSurah: "Al-Baqarah", notes: "" }
     ];
 
