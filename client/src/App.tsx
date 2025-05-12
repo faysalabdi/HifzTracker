@@ -10,6 +10,7 @@ import Reports from "@/pages/reports";
 import Progress from "@/pages/progress";
 import StudentDetail from "@/pages/student-detail";
 import SessionDetail from "@/pages/session-detail";
+import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
             <Route path="/reports" component={Reports} />
             <Route path="/progress" component={Progress} />
             <Route path="/sessions/:id" component={SessionDetail} />
+            <Route path="/settings" component={Settings} />
             <Route component={NotFound} />
           </Switch>
         </MainLayout>
