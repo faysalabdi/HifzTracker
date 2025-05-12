@@ -2,9 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { DataCard } from "@/components/ui/data-card";
-import { User, BookOpen, AlertTriangle } from "lucide-react";
-import { formatDate } from "@/lib/constants";
-import { SessionWithDetails } from "@shared/schema";
+import { User, BookOpen, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { formatDate, getInitials } from "@/lib/constants";
+import { SessionWithDetails, StudentWithStats } from "@shared/schema";
+import { Progress } from "@/components/ui/progress";
+import { 
+  Avatar, 
+  AvatarFallback 
+} from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 export default function Dashboard() {
   const { data: recentSessions, isLoading: isLoadingSessions } = useQuery<SessionWithDetails[]>({
@@ -15,6 +21,10 @@ export default function Dashboard() {
     queryKey: ["/api/students"],
     select: (data) => data.length
   });
+  
+  const { data: studentsWithStats, isLoading: isLoadingStudentStats } = useQuery<StudentWithStats[]>({
+    queryKey: ["/api/students/stats"]
+  });
 
   const { data: mistakeDistribution, isLoading: isLoadingDistribution } = useQuery({
     queryKey: ["/api/stats/mistake-distribution"]
@@ -24,7 +34,7 @@ export default function Dashboard() {
     queryKey: ["/api/stats/average-mistakes"]
   });
 
-  const isLoading = isLoadingSessions || isLoadingStudents || isLoadingDistribution || isLoadingAverage;
+  const isLoading = isLoadingSessions || isLoadingStudents || isLoadingDistribution || isLoadingAverage || isLoadingStudentStats;
 
   return (
     <div className="p-4 md:p-6">
@@ -71,7 +81,7 @@ export default function Dashboard() {
                     <th className="px-4 py-3 text-left">Student</th>
                     <th className="px-4 py-3 text-left">Partner</th>
                     <th className="px-4 py-3 text-left">Date</th>
-                    <th className="px-4 py-3 text-left">Pages</th>
+                    <th className="px-4 py-3 text-left">Range</th>
                     <th className="px-4 py-3 text-left">Mistakes</th>
                     <th className="px-4 py-3 text-left">Actions</th>
                   </tr>
@@ -87,7 +97,7 @@ export default function Dashboard() {
                         <td className="px-4 py-3">{session.student1.name}</td>
                         <td className="px-4 py-3">{session.student2.name}</td>
                         <td className="px-4 py-3">{formatDate(session.date)}</td>
-                        <td className="px-4 py-3">{session.pageStart}-{session.pageEnd}</td>
+                        <td className="px-4 py-3">{session.surahStart}:{session.ayahStart} - {session.surahEnd}:{session.ayahEnd}</td>
                         <td className="px-4 py-3">
                           <span className={`${getMistakeCountColor(session.mistakeCount)} px-2 py-1 rounded-full text-xs font-medium`}>
                             {session.mistakeCount}
@@ -117,75 +127,103 @@ export default function Dashboard() {
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <Card>
-          <CardContent className="p-5">
-            <img 
-              src="https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500" 
-              alt="Students studying together" 
-              className="w-full h-40 object-cover rounded-lg mb-4"
-            />
-            <blockquote className="font-['Amiri'] text-center italic text-neutral-600 mb-2">
-              "The best among you are those who learn the Quran and teach it."
-            </blockquote>
-            <p className="text-center text-neutral-500 text-sm">- Prophet Muhammad ﷺ</p>
+          <CardHeader className="pb-2">
+            <h3 className="font-heading font-semibold">Student Revision Status</h3>
+            <p className="text-sm text-neutral-500">Track who has completed their revision sessions today</p>
+          </CardHeader>
+          <CardContent>
+            {isLoadingStudentStats ? (
+              <div className="text-center py-8">Loading student data...</div>
+            ) : studentsWithStats && studentsWithStats.length > 0 ? (
+              <div className="space-y-4">
+                {studentsWithStats.map((student) => {
+                  // Check if student has any session today
+                  const hasSessionToday = recentSessions?.some(
+                    session => 
+                      (session.student1Id === student.id || session.student2Id === student.id) && 
+                      new Date(session.date).toDateString() === new Date().toDateString()
+                  ) || false;
+                  
+                  return (
+                    <div key={student.id} className="flex items-center justify-between border-b pb-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 border">
+                          <AvatarFallback className="bg-primary-50 text-primary-600">
+                            {getInitials(student.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h4 className="font-medium">{student.name}</h4>
+                          <div className="flex items-center gap-2 text-xs">
+                            <Badge variant="outline" className="text-xs">Grade {student.grade}</Badge>
+                            <span className="text-neutral-500">Juz {student.currentJuz}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        {hasSessionToday ? (
+                          <div className="flex items-center text-success gap-1">
+                            <CheckCircle className="h-4 w-4" />
+                            <span className="text-sm font-medium">Completed</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center text-warning gap-1">
+                            <XCircle className="h-4 w-4" />
+                            <span className="text-sm font-medium">Pending</span>
+                          </div>
+                        )}
+                        <span className="text-xs text-neutral-500 mt-1">
+                          {student.sessionCount} total sessions
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8">No students found</div>
+            )}
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="p-5">
-            <h4 className="font-heading font-semibold mb-3">Common Mistake Types</h4>
+          <CardHeader className="pb-2">
+            <h3 className="font-heading font-semibold">Common Mistake Types</h3>
+            <p className="text-sm text-neutral-500">Distribution of errors across all students</p>
+          </CardHeader>
+          <CardContent>
             {isLoadingDistribution ? (
               <div className="text-center py-8">Loading statistics...</div>
             ) : mistakeDistribution ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-sm mb-1">
                     <span>Tajweed Errors</span>
                     <span>{mistakeDistribution.tajweed}%</span>
                   </div>
-                  <div className="w-full bg-neutral-100 rounded-full h-2">
-                    <div 
-                      className="bg-error h-2 rounded-full" 
-                      style={{ width: `${mistakeDistribution.tajweed}%` }}
-                    ></div>
-                  </div>
+                  <Progress value={mistakeDistribution.tajweed} className="h-2" indicatorClassName="bg-error" />
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
                     <span>Word Mistakes</span>
                     <span>{mistakeDistribution.word}%</span>
                   </div>
-                  <div className="w-full bg-neutral-100 rounded-full h-2">
-                    <div 
-                      className="bg-warning h-2 rounded-full" 
-                      style={{ width: `${mistakeDistribution.word}%` }}
-                    ></div>
-                  </div>
+                  <Progress value={mistakeDistribution.word} className="h-2" indicatorClassName="bg-warning" />
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>Hesitation</span>
-                    <span>{mistakeDistribution.hesitation}%</span>
+                    <span>Stuck/Hesitations</span>
+                    <span>{mistakeDistribution.stuck}%</span>
                   </div>
-                  <div className="w-full bg-neutral-100 rounded-full h-2">
-                    <div 
-                      className="bg-accent-500 h-2 rounded-full" 
-                      style={{ width: `${mistakeDistribution.hesitation}%` }}
-                    ></div>
-                  </div>
+                  <Progress value={mistakeDistribution.stuck} className="h-2" indicatorClassName="bg-accent-500" />
                 </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Other</span>
-                    <span>{mistakeDistribution.other}%</span>
-                  </div>
-                  <div className="w-full bg-neutral-100 rounded-full h-2">
-                    <div 
-                      className="bg-primary-500 h-2 rounded-full" 
-                      style={{ width: `${mistakeDistribution.other}%` }}
-                    ></div>
-                  </div>
+                <div className="pt-4 mt-4 border-t">
+                  <blockquote className="font-['Amiri'] text-center italic text-neutral-600 mb-2">
+                    "The best among you are those who learn the Quran and teach it."
+                  </blockquote>
+                  <p className="text-center text-neutral-500 text-sm">- Prophet Muhammad ﷺ</p>
                 </div>
               </div>
             ) : (
