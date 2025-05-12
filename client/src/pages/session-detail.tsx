@@ -25,7 +25,8 @@ import {
   Users,
   FileText,
   CheckCircle,
-  Plus
+  Plus,
+  Trash2
 } from "lucide-react";
 
 import { formatDate, getInitials } from "@/lib/constants";
@@ -113,9 +114,11 @@ export default function SessionDetail() {
   const [showAddMistakeDialog, setShowAddMistakeDialog] = useState(false);
   const [activeStudentId, setActiveStudentId] = useState<number | null>(null);
   const [editingMistake, setEditingMistake] = useState<Mistake | undefined>(undefined);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   
   const queryClient = useQueryClient();
+  const navigate = () => window.location.href = "/";
   
   // Fetch session details
   const { data: session, isLoading: isLoadingSession } = useQuery<SessionWithDetails>({
@@ -150,6 +153,34 @@ export default function SessionDetail() {
       toast({
         title: "Error",
         description: "Failed to complete the session.",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Delete session mutation
+  const deleteSessionMutation = useMutation({
+    mutationFn: async () => {
+      setIsDeleting(true);
+      try {
+        return apiRequest('DELETE', `/api/sessions/${sessionId}`);
+      } finally {
+        setIsDeleting(false);
+      }
+    },
+    onSuccess: () => {
+      toast({
+        title: "Session deleted",
+        description: "The session has been deleted successfully."
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/sessions/recent'] });
+      navigate();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete session: ${error.message}`,
         variant: "destructive"
       });
     }
