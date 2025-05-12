@@ -65,7 +65,7 @@ export default function NewSession() {
   });
 
   // Get the session ID if the form has been submitted
-  const sessionId = form.getValues().id;
+  const sessionId = form.getValues().id as unknown as number;
 
   // Fetch students
   const { data: students, isLoading: isLoadingStudents } = useQuery<Student[]>({
@@ -430,18 +430,22 @@ export default function NewSession() {
               </Button>
             </CardHeader>
             <CardContent className="p-5">
-              {/* Quran visualization */}
+              {/* Revision Range Section */}
               <div className="mb-6 border border-neutral-200 rounded-lg overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400" 
-                  alt="Quran page with Arabic text" 
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4 bg-neutral-50">
-                  <p className="text-sm font-medium mb-2">Revision Range</p>
-                  <p className="text-sm text-neutral-600">
-                    {form.getValues().surahStart} {form.getValues().ayahStart} to {form.getValues().surahEnd} {form.getValues().ayahEnd}
-                  </p>
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="mb-3 flex justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        <path d="M8 7h8"></path>
+                        <path d="M8 12h8"></path>
+                        <path d="M8 17h8"></path>
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-emerald-800">{form.getValues().surahStart} {form.getValues().ayahStart} - {form.getValues().surahEnd} {form.getValues().ayahEnd}</h3>
+                    <p className="text-sm text-emerald-600 mt-1">Current Revision Range</p>
+                  </div>
                 </div>
               </div>
               

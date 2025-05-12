@@ -178,18 +178,18 @@ export default function SessionDetail() {
                 </div>
                 
                 <div className="bg-neutral-50 p-3 rounded-lg flex items-start gap-3">
-                  <BookOpen className="h-5 w-5 text-primary-500 mt-0.5" />
+                  <FileText className="h-5 w-5 text-accent-500 mt-0.5" />
                   <div>
-                    <p className="text-xs text-neutral-500">Pages</p>
-                    <p className="font-medium">{session.pageStart}-{session.pageEnd}</p>
+                    <p className="text-xs text-neutral-500">Surah/Ayah (Start)</p>
+                    <p className="font-medium">{session.surahStart} {session.ayahStart}</p>
                   </div>
                 </div>
                 
                 <div className="bg-neutral-50 p-3 rounded-lg flex items-start gap-3">
                   <FileText className="h-5 w-5 text-accent-500 mt-0.5" />
                   <div>
-                    <p className="text-xs text-neutral-500">Surah</p>
-                    <p className="font-medium">{session.surah}</p>
+                    <p className="text-xs text-neutral-500">Surah/Ayah (End)</p>
+                    <p className="font-medium">{session.surahEnd} {session.ayahEnd}</p>
                   </div>
                 </div>
                 
