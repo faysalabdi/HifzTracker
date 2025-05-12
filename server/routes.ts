@@ -156,10 +156,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(`${apiPrefix}/sessions`, async (req, res) => {
     try {
-      const validatedData = insertSessionSchema.parse(req.body);
+      // Create a proper session object with default date if not provided
+      let sessionData = { ...req.body };
+      
+      // Ensure date is a Date object
+      if (!sessionData.date) {
+        sessionData.date = new Date();
+      } else if (typeof sessionData.date === 'string') {
+        sessionData.date = new Date(sessionData.date);
+      }
+      
+      // Convert numeric fields to numbers
+      if (sessionData.student1Id) sessionData.student1Id = Number(sessionData.student1Id);
+      if (sessionData.student2Id) sessionData.student2Id = Number(sessionData.student2Id);
+      if (sessionData.ayahStart) sessionData.ayahStart = Number(sessionData.ayahStart);
+      if (sessionData.ayahEnd) sessionData.ayahEnd = Number(sessionData.ayahEnd);
+      
+      const validatedData = insertSessionSchema.parse(sessionData);
       const session = await storage.createSession(validatedData);
       res.status(201).json(session);
     } catch (error) {
+      console.error("Session creation error:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid session data", errors: error.errors });
       }
