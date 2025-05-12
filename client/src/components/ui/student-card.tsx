@@ -45,7 +45,7 @@ export function StudentCard({ student }: StudentCardProps) {
         </div>
         <div>
           <h3 className="font-medium">{student.name}</h3>
-          <p className="text-sm text-neutral-500">Grade {student.grade}</p>
+          <p className="text-sm text-neutral-500">Juz {student.currentJuz}</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -65,12 +65,12 @@ export function StudentCard({ student }: StudentCardProps) {
       <CardContent className="p-4">
         <div className="grid grid-cols-2 gap-2 mb-4">
           <div className="bg-neutral-50 rounded p-2">
-            <p className="text-xs text-neutral-500">Current Juz</p>
-            <p className="font-medium">Juz {student.currentJuz}</p>
+            <p className="text-xs text-neutral-500">Current Surah</p>
+            <p className="font-medium">{student.currentSurah || "N/A"}</p>
           </div>
           <div className="bg-neutral-50 rounded p-2">
-            <p className="text-xs text-neutral-500">Last Session</p>
-            <p className="font-medium">{student.sessionCount > 0 ? "Today" : "N/A"}</p>
+            <p className="text-xs text-neutral-500">Sessions</p>
+            <p className="font-medium">{student.sessionCount}</p>
           </div>
         </div>
         <div className="mb-3">

@@ -16,7 +16,7 @@ import { UserPlus, Search } from "lucide-react";
 
 export default function Students() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [gradeFilter, setGradeFilter] = useState("");
+  // Removed grade filter for adult students
   const [showAddStudentDialog, setShowAddStudentDialog] = useState(false);
 
   const { data: students, isLoading } = useQuery<StudentWithStats[]>({
@@ -24,10 +24,7 @@ export default function Students() {
   });
 
   const filteredStudents = students?.filter(student => {
-    return (
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (gradeFilter === "" || student.grade === gradeFilter)
-    );
+    return student.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (
@@ -54,20 +51,7 @@ export default function Students() {
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 h-4 w-4" />
         </div>
-        <div className="w-full md:w-48">
-          <Select value={gradeFilter} onValueChange={setGradeFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Grades" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Grades</SelectItem>
-              <SelectItem value="1">Grade 1</SelectItem>
-              <SelectItem value="2">Grade 2</SelectItem>
-              <SelectItem value="3">Grade 3</SelectItem>
-              <SelectItem value="4">Grade 4</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Grade filter removed for adult students */}
       </div>
       
       {isLoading ? (
@@ -80,7 +64,7 @@ export default function Students() {
         </div>
       ) : (
         <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-neutral-100">
-          {searchTerm || gradeFilter ? "No students match your filters" : "No students found. Add your first student!"}
+          {searchTerm ? "No students match your search" : "No students found. Add your first student!"}
         </div>
       )}
       
