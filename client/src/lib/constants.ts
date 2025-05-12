@@ -3,7 +3,8 @@ import {
   Users, 
   Plus, 
   BarChart, 
-  Settings 
+  Settings,
+  TrendingUp
 } from "lucide-react";
 
 export const navItems = [
@@ -21,6 +22,11 @@ export const navItems = [
     name: "New Session",
     path: "/new-session",
     icon: Plus
+  },
+  {
+    name: "Progress",
+    path: "/progress",
+    icon: TrendingUp
   },
   {
     name: "Reports",
