@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { insertMistakeSchema, InsertMistake, Mistake } from "@shared/schema";
-import { mistakeTypes } from "@/lib/constants";
+import { mistakeTypes, surahs } from "@/lib/constants";
 
 import {
   Dialog,
@@ -61,16 +61,16 @@ export function AddMistakeDialog({
           sessionId: editingMistake.sessionId,
           studentId: editingMistake.studentId,
           type: editingMistake.type,
-          page: editingMistake.page,
-          line: editingMistake.line,
+          surah: editingMistake.surah,
+          ayah: editingMistake.ayah,
           description: editingMistake.description
         }
       : {
           sessionId,
           studentId,
           type: "tajweed",
-          page: 1,
-          line: 1,
+          surah: "Al-Baqarah",
+          ayah: 1,
           description: ""
         }
   });
@@ -97,8 +97,8 @@ export function AddMistakeDialog({
         sessionId,
         studentId,
         type: "tajweed",
-        page: 1,
-        line: 1,
+        surah: "Al-Baqarah",
+        ayah: 1,
         description: ""
       });
       
@@ -154,18 +154,27 @@ export function AddMistakeDialog({
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="page"
+                name="surah"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Page</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="1"
-                        {...field}
-                        onChange={e => field.onChange(parseInt(e.target.value))} 
-                      />
-                    </FormControl>
+                    <FormLabel>Surah</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Surah" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {surahs.map((surah) => (
+                          <SelectItem key={surah} value={surah}>
+                            {surah}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -173,10 +182,10 @@ export function AddMistakeDialog({
 
               <FormField
                 control={form.control}
-                name="line"
+                name="ayah"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Line</FormLabel>
+                    <FormLabel>Ayah</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 

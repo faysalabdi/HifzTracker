@@ -402,72 +402,72 @@ export class MemStorage implements IStorage {
         sessionId: 1, 
         studentId: 1, 
         type: "tajweed", 
-        page: 6, 
-        line: 4, 
+        surah: "Al-Baqarah", 
+        ayah: 7, 
         description: "Missed the Ghunnah in 'min ba'dihi'" 
       },
       { 
         sessionId: 1, 
         studentId: 1, 
         type: "word", 
-        page: 7, 
-        line: 2, 
+        surah: "Al-Baqarah", 
+        ayah: 10, 
         description: "Used 'qulna' instead of 'qala'" 
       },
       { 
         sessionId: 1, 
         studentId: 1, 
-        type: "hesitation", 
-        page: 8, 
-        line: 5, 
+        type: "stuck", 
+        surah: "Al-Baqarah", 
+        ayah: 15, 
         description: "Paused too long before 'wa-qafayna'" 
       },
       { 
         sessionId: 2, 
         studentId: 2, 
         type: "tajweed", 
-        page: 2, 
-        line: 3, 
+        surah: "Yunus", 
+        ayah: 3, 
         description: "Incorrect pronunciation of 'dhaalika'" 
       },
       { 
         sessionId: 2, 
         studentId: 2, 
         type: "word", 
-        page: 3, 
-        line: 7, 
+        surah: "Yunus", 
+        ayah: 7, 
         description: "Skipped a word" 
       },
       { 
         sessionId: 3, 
         studentId: 3, 
         type: "tajweed", 
-        page: 11, 
-        line: 2, 
+        surah: "Al-A'raf", 
+        ayah: 12, 
         description: "Incorrect madd" 
       },
       { 
         sessionId: 3, 
         studentId: 3, 
         type: "tajweed", 
-        page: 12, 
-        line: 5, 
+        surah: "Al-A'raf", 
+        ayah: 15, 
         description: "Incorrect idgham" 
       },
       { 
         sessionId: 4, 
         studentId: 4, 
-        type: "hesitation", 
-        page: 6, 
-        line: 3, 
+        type: "stuck", 
+        surah: "Al-Baqarah", 
+        ayah: 46, 
         description: "Repeated words unnecessarily" 
       },
       { 
         sessionId: 4, 
         studentId: 4, 
         type: "word", 
-        page: 8, 
-        line: 1, 
+        surah: "Al-Baqarah", 
+        ayah: 52, 
         description: "Incorrect word order" 
       }
     ];
