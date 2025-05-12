@@ -33,7 +33,7 @@ export default function Students() {
         <h2 className="text-2xl font-heading font-semibold">Students</h2>
         <Button 
           onClick={() => setShowAddStudentDialog(true)}
-          className="bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium shadow-sm transition-colors block"
+          className="bg-blue-500 hover:bg-blue-600 text-white rounded-md font-medium shadow-sm transition-colors block"
         >
           <UserPlus className="mr-2 h-4 w-4" />
           Add Student
@@ -68,7 +68,7 @@ export default function Students() {
           {!searchTerm && (
             <Button 
               onClick={() => setShowAddStudentDialog(true)}
-              className="bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium shadow-sm transition-colors mt-4"
+              className="bg-blue-500 hover:bg-blue-600 text-white rounded-md font-medium shadow-sm transition-colors mt-4"
             >
               <UserPlus className="mr-2 h-4 w-4" />
               Add Your First Student
