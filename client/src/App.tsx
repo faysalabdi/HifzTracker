@@ -51,7 +51,10 @@ function AuthenticatedRoute({ component: Component, requiredRole = null, ...rest
   }
 
   if (!user) {
-    navigate("/login");
+    // Use Effect hook to handle navigation after render
+    React.useEffect(() => {
+      navigate("/login");
+    }, [navigate]);
     return null;
   }
 

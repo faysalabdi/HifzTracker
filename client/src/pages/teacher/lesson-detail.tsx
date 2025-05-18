@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatDate, getMistakeTypeColor, getMistakeTypeLabel, mistakeTypes } from "@/lib/constants";
-import { Lesson, LessonMistake, MistakeType } from "@shared/schema";
+import { Lesson, LessonMistake, MistakeType, Student } from "@shared/schema";
 
 // Form schema for adding mistakes
 const mistakeSchema = z.object({
@@ -28,7 +28,7 @@ const mistakeSchema = z.object({
 export default function LessonDetail() {
   const [, navigate] = useLocation();
   const params = useParams();
-  const lessonId = parseInt(params.id);
+  const lessonId = params.id ? parseInt(params.id) : 0;
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showMistakeDialog, setShowMistakeDialog] = useState(false);
@@ -76,7 +76,7 @@ export default function LessonDetail() {
         studentId: lesson?.studentId,
         type: data.type as MistakeType,
         ayah: data.ayah,
-        details: data.details || null,
+        description: data.details || null,
       });
     },
     onSuccess: () => {
@@ -265,8 +265,8 @@ export default function LessonDetail() {
                             <span className="text-neutral-500">Ayah {mistake.ayah}</span>
                           </div>
                         </div>
-                        {mistake.details && (
-                          <p className="text-sm text-neutral-600 mt-1">{mistake.details}</p>
+                        {mistake.description && (
+                          <p className="text-sm text-neutral-600 mt-1">{mistake.description}</p>
                         )}
                       </div>
                     ))}
