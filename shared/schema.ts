@@ -98,10 +98,14 @@ export const lessonMistakes = pgTable("lesson_mistakes", {
 });
 
 // Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertUserSchema = createInsertSchema(users)
+  .omit({
+    id: true,
+    createdAt: true,
+  })
+  .extend({
+    role: userRoleSchema,
+  });
 
 export const insertStudentSchema = createInsertSchema(students).omit({
   id: true,

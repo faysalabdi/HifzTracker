@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/components/layout/MainLayout";
+import React, { useEffect } from "react";
+import { User } from "@shared/schema";
 
 // Original pages
 import Dashboard from "@/pages/dashboard";
@@ -22,11 +24,17 @@ import LoginPage from "@/pages/login";
 import TeacherDashboard from "@/pages/teacher/dashboard";
 import StudentDashboard from "@/pages/student/dashboard";
 
+interface AuthenticatedRouteProps {
+  component: React.ComponentType<any>;
+  requiredRole?: "teacher" | "student" | null;
+  params?: any;
+}
+
 // Authentication wrapper component
-function AuthenticatedRoute({ component: Component, requiredRole = null, ...rest }) {
+function AuthenticatedRoute({ component: Component, requiredRole = null, ...rest }: AuthenticatedRouteProps) {
   const [, navigate] = useLocation();
   
-  const { data: user, isLoading } = useQuery({
+  const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/user"],
     retry: false,
     onError: () => {
@@ -56,8 +64,32 @@ function AuthenticatedRoute({ component: Component, requiredRole = null, ...rest
 
   return (
     <MainLayout>
-      <Component {...rest} />
+      <Component user={user} {...rest} />
     </MainLayout>
+  );
+}
+
+// Role redirector component
+interface RoleRedirectorProps {
+  user: User;
+}
+
+function RoleRedirector({ user }: RoleRedirectorProps) {
+  const [, navigate] = useLocation();
+  
+  useEffect(() => {
+    if (user?.role === "teacher") {
+      navigate("/teacher/dashboard");
+    } else if (user?.role === "student") {
+      navigate("/student/dashboard");
+    }
+  }, [user, navigate]);
+  
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <p className="ml-2">Redirecting...</p>
+    </div>
   );
 }
 
@@ -80,29 +112,7 @@ function App() {
           
           {/* Default redirect to appropriate dashboard based on role */}
           <Route path="/">
-            {(params) => (
-              <AuthenticatedRoute 
-                component={({ user }) => {
-                  const [, navigate] = useLocation();
-                  
-                  React.useEffect(() => {
-                    if (user?.role === "teacher") {
-                      navigate("/teacher/dashboard");
-                    } else if (user?.role === "student") {
-                      navigate("/student/dashboard");
-                    }
-                  }, [user, navigate]);
-                  
-                  return (
-                    <div className="flex items-center justify-center h-screen">
-                      <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                      <p className="ml-2">Redirecting...</p>
-                    </div>
-                  );
-                }}
-                params={params} 
-              />
-            )}
+            {(params) => <AuthenticatedRoute component={RoleRedirector} params={params} />}
           </Route>
           
           {/* Legacy routes (will eventually be migrated) */}
