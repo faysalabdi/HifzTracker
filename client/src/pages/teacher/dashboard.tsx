@@ -69,10 +69,17 @@ export default function TeacherDashboard() {
           <p className="text-neutral-500">Welcome back, {currentUser?.name}</p>
         </div>
         
-        <Button className="bg-blue-500 hover:bg-blue-600">
-          <Calendar className="mr-2 h-4 w-4" />
-          Schedule Lesson
-        </Button>
+        <div className="flex gap-2">
+          <LogoutButton />
+          
+          <Button 
+            className="bg-blue-500 hover:bg-blue-600"
+            onClick={() => navigate("/teacher/new-lesson")}
+          >
+            <Calendar className="mr-2 h-4 w-4" />
+            Schedule Lesson
+          </Button>
+        </div>
       </div>
       
       <Tabs defaultValue="overview" className="mb-6" onValueChange={setActiveTab}>
