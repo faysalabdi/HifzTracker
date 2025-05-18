@@ -53,7 +53,7 @@ export default function Dashboard() {
           iconBackground="bg-secondary-50"
           title="Today's Sessions"
           value={isLoadingSessions ? "Loading..." : (recentSessions?.filter(s => 
-            new Date(s.date).toDateString() === new Date().toDateString()).length || 0)}
+            s && s.date && new Date(s.date).toDateString() === new Date().toDateString()).length || 0)}
         />
         
         <DataCard
@@ -147,7 +147,9 @@ export default function Dashboard() {
                   // Check if student has any session today
                   const hasSessionToday = recentSessions?.some(
                     session => 
+                      session && 
                       (session.student1Id === student.id || session.student2Id === student.id) && 
+                      session.date && 
                       new Date(session.date).toDateString() === new Date().toDateString()
                   ) || false;
                   
