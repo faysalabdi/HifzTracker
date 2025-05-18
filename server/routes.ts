@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
+import session from "express-session";
 import { 
   insertStudentSchema, 
   insertSessionSchema, 
@@ -45,7 +46,6 @@ const hasRole = (role: UserRole) => {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup sessions
-  const session = require('express-session');
   app.use(session({
     secret: 'hifz-tracker-secret', // In production, use environment variable
     resave: false,
