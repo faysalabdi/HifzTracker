@@ -107,6 +107,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiPrefix}/teacher/stats`, isAuthenticated, hasRole('teacher'), async (req, res) => {
     try {
       const teacherId = req.session.user?.id;
+      if (!teacherId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       const stats = await storage.getTeacherLessonStats(teacherId);
       res.json(stats);
     } catch (error) {
@@ -118,6 +121,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiPrefix}/teacher/students`, isAuthenticated, hasRole('teacher'), async (req, res) => {
     try {
       const teacherId = req.session.user?.id;
+      if (!teacherId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       const students = await storage.getStudentsByTeacher(teacherId);
       res.json(students);
     } catch (error) {
@@ -126,9 +132,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get all unassigned students (for teacher assignment)
+  app.get(`${apiPrefix}/students/unassigned`, isAuthenticated, hasRole('teacher'), async (req, res) => {
+    try {
+      const students = await storage.getStudents();
+      // Get all students currently assigned to teachers
+      const assignedStudents = await storage.getAllStudentsWithStats();
+      // Filter out students who don't have a teacher yet
+      const unassignedStudents = students.filter(student => 
+        !assignedStudents.some(assigned => assigned.id === student.id && assigned.teacher)
+      );
+      res.json(unassignedStudents);
+    } catch (error) {
+      console.error("Error fetching unassigned students:", error);
+      res.status(500).json({ message: "Failed to fetch unassigned students" });
+    }
+  });
+  
+  // Assign a student to a teacher
+  app.post(`${apiPrefix}/teacher/students/assign`, isAuthenticated, hasRole('teacher'), async (req, res) => {
+    try {
+      const { studentId } = req.body;
+      const teacherId = req.session.user?.id;
+      
+      if (!teacherId || !studentId) {
+        return res.status(400).json({ message: "Teacher ID and Student ID are required" });
+      }
+      
+      const result = await storage.assignTeacherToStudent(teacherId, studentId);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Error assigning student to teacher:", error);
+      res.status(500).json({ message: "Failed to assign student" });
+    }
+  });
+  
   app.get(`${apiPrefix}/teacher/lessons/recent`, isAuthenticated, hasRole('teacher'), async (req, res) => {
     try {
       const teacherId = req.session.user?.id;
+      if (!teacherId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       const limit = parseInt(req.query.limit as string) || 5;
       const lessons = await storage.getLessonsByTeacher(teacherId);
       // Sort by date descending and limit

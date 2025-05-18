@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Select,
@@ -26,8 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { surahs } from "@/lib/constants";
 import { CalendarIcon } from "lucide-react";
@@ -38,6 +39,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { Student } from "@shared/schema";
 
 const lessonSchema = z.object({
   studentId: z.string().min(1, { message: "Please select a student" }),
@@ -47,10 +49,16 @@ const lessonSchema = z.object({
   surahEnd: z.string().min(1, { message: "Please select an ending surah" }),
   ayahEnd: z.coerce.number().min(1, { message: "Please enter a valid ayah number" }),
   notes: z.string().optional(),
-  progress: z.string().default("Not Started")
+  progress: z.number().min(0).max(100)
 });
 
-export function CreateLessonDialog({ students, teacherId, trigger }) {
+interface CreateLessonDialogProps {
+  students: Student[];
+  teacherId: number;
+  trigger: React.ReactNode;
+}
+
+export function CreateLessonDialog({ students, teacherId, trigger }: CreateLessonDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -65,7 +73,7 @@ export function CreateLessonDialog({ students, teacherId, trigger }) {
       surahEnd: "",
       ayahEnd: 1,
       notes: "",
-      progress: "Not Started",
+      progress: 0
     },
   });
 
@@ -73,7 +81,6 @@ export function CreateLessonDialog({ students, teacherId, trigger }) {
     mutationFn: async (data) => {
       return await apiRequest("POST", "/api/teacher/lessons", {
         ...data,
-        teacherId,
         studentId: parseInt(data.studentId),
       });
     },
@@ -107,9 +114,9 @@ export function CreateLessonDialog({ students, teacherId, trigger }) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle>Create New Lesson</DialogTitle>
+          <DialogTitle>Schedule New Lesson</DialogTitle>
           <DialogDescription>
-            Schedule a new lesson with a student. Fill in the lesson details below.
+            Create a new lesson for your student. Fill in the details below.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -130,7 +137,7 @@ export function CreateLessonDialog({ students, teacherId, trigger }) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {students?.map((student) => (
+                      {students.map((student) => (
                         <SelectItem key={student.id} value={student.id.toString()}>
                           {student.name}
                         </SelectItem>
@@ -277,8 +284,28 @@ export function CreateLessonDialog({ students, teacherId, trigger }) {
                   <FormLabel>Notes</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Add any notes about this lesson..."
+                      placeholder="Add any notes or instructions for this lesson"
                       {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="progress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Progress: {field.value}%</FormLabel>
+                  <FormControl>
+                    <Slider
+                      min={0}
+                      max={100}
+                      step={5}
+                      defaultValue={[field.value]}
+                      onValueChange={(values) => field.onChange(values[0])}
                     />
                   </FormControl>
                   <FormMessage />
@@ -292,7 +319,7 @@ export function CreateLessonDialog({ students, teacherId, trigger }) {
                 className="bg-blue-500 hover:bg-blue-600 w-full"
                 disabled={createLessonMutation.isPending}
               >
-                {createLessonMutation.isPending ? "Creating..." : "Create Lesson"}
+                {createLessonMutation.isPending ? "Creating..." : "Schedule Lesson"}
               </Button>
             </DialogFooter>
           </form>
