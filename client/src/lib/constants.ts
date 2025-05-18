@@ -40,10 +40,12 @@ export const navItems = [
   }
 ];
 
-export const mistakeTypes = [
-  { value: "tajweed", label: "Tajweed Error", color: "bg-error text-error" },
-  { value: "word", label: "Word Mistake", color: "bg-warning text-warning" },
-  { value: "stuck", label: "Stuck", color: "bg-accent-500 text-accent-600" }
+export const mistakeTypes = ["tajweed", "word", "stuck"] as const;
+
+export const mistakeTypeInfo = [
+  { value: "tajweed", label: "Tajweed Error", color: "#ef4444" },
+  { value: "word", label: "Word Mistake", color: "#f59e0b" },
+  { value: "stuck", label: "Stuck", color: "#8b5cf6" }
 ];
 
 export const grades = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
@@ -168,12 +170,12 @@ export const surahs = [
 export const juzs = Array.from({ length: 30 }, (_, i) => i + 1);
 
 export const getMistakeTypeColor = (type: string) => {
-  const mistakeType = mistakeTypes.find(m => m.value === type);
-  return mistakeType?.color || "bg-neutral-200 text-neutral-600";
+  const mistakeType = mistakeTypeInfo.find(m => m.value === type);
+  return mistakeType?.color || "#d1d5db";
 };
 
 export const getMistakeTypeLabel = (type: string) => {
-  const mistakeType = mistakeTypes.find(m => m.value === type);
+  const mistakeType = mistakeTypeInfo.find(m => m.value === type);
   return mistakeType?.label || "Unknown";
 };
 
