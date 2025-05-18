@@ -82,7 +82,7 @@ export default function StudentDashboard() {
           
           <Button className="bg-blue-500 hover:bg-blue-600" onClick={() => navigate("/student/new-session")}>
             <Calendar className="mr-2 h-4 w-4" />
-            Create Session
+            New Revision Session
           </Button>
         </div>
       </div>
