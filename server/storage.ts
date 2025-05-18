@@ -8,12 +8,26 @@ import {
 
 // Define the storage interface
 export interface IStorage {
+  // User methods
+  getUsers(): Promise<User[]>;
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
+  deleteUser(id: number): Promise<boolean>;
+  
   // Student methods
   getStudents(): Promise<Student[]>;
   getStudent(id: number): Promise<Student | undefined>;
   createStudent(student: InsertStudent): Promise<Student>;
   updateStudent(id: number, student: Partial<InsertStudent>): Promise<Student | undefined>;
   deleteStudent(id: number): Promise<boolean>;
+  
+  // Teacher-Student relation methods
+  assignTeacherToStudent(teacherId: number, studentId: number): Promise<TeacherStudent>;
+  unassignTeacherFromStudent(teacherId: number, studentId: number): Promise<boolean>;
+  getStudentsByTeacher(teacherId: number): Promise<StudentWithStats[]>;
+  getTeacherForStudent(studentId: number): Promise<User | undefined>;
   
   // Session methods
   getSessions(): Promise<Session[]>;
@@ -35,6 +49,26 @@ export interface IStorage {
   getMistakesBySession(sessionId: number): Promise<Mistake[]>;
   getMistakesByStudent(studentId: number): Promise<Mistake[]>;
   
+  // Lesson methods (for teachers)
+  getLessons(): Promise<Lesson[]>;
+  getLesson(id: number): Promise<Lesson | undefined>;
+  getLessonWithDetails(id: number): Promise<LessonWithDetails | undefined>;
+  createLesson(lesson: InsertLesson): Promise<Lesson>;
+  updateLesson(id: number, lesson: Partial<InsertLesson>): Promise<Lesson | undefined>;
+  deleteLesson(id: number): Promise<boolean>;
+  getLessonsByTeacher(teacherId: number): Promise<LessonWithDetails[]>;
+  getLessonsByStudent(studentId: number): Promise<LessonWithDetails[]>;
+  getRecentLessons(limit: number): Promise<LessonWithDetails[]>;
+  
+  // Lesson Mistake methods (for teachers)
+  getLessonMistakes(): Promise<LessonMistake[]>;
+  getLessonMistake(id: number): Promise<LessonMistake | undefined>;
+  createLessonMistake(mistake: InsertLessonMistake): Promise<LessonMistake>;
+  updateLessonMistake(id: number, mistake: Partial<InsertLessonMistake>): Promise<LessonMistake | undefined>;
+  deleteLessonMistake(id: number): Promise<boolean>;
+  getLessonMistakesByLesson(lessonId: number): Promise<LessonMistake[]>;
+  getLessonMistakesByStudent(studentId: number): Promise<LessonMistake[]>;
+  
   // Statistics methods
   getStudentWithStats(id: number): Promise<StudentWithStats | undefined>;
   getAllStudentsWithStats(): Promise<StudentWithStats[]>;
@@ -43,15 +77,35 @@ export interface IStorage {
   getAverageMistakesPerSession(): Promise<number>;
   getMistakeTrend(days: number): Promise<{ date: string; count: number }[]>;
   getStudentProgress(studentId: number, days: number): Promise<{ date: string; count: number; mistakeType: MistakeType | null }[]>;
+  // Teacher-specific stats
+  getTeacherLessonStats(teacherId: number): Promise<{ 
+    totalLessons: number; 
+    studentsCount: number;
+    averageMistakes: number;
+    completedLessons: number;
+  }>;
+  getStudentLessonProgress(studentId: number, days: number): Promise<{ 
+    date: string; 
+    lessonsCount: number; 
+    mistakesCount: number;
+  }[]>;
 }
 
 export class MemStorage implements IStorage {
+  private usersData: Map<number, User>;
   private studentsData: Map<number, Student>;
+  private teacherStudentsData: Map<string, TeacherStudent>; // key: `${teacherId}-${studentId}`
   private mistakesData: Map<number, Mistake>;
   private sessionsData: Map<number, Session>;
+  private lessonsData: Map<number, Lesson>;
+  private lessonMistakesData: Map<number, LessonMistake>;
+  
+  private userIdCounter: number;
   private studentIdCounter: number;
   private mistakeIdCounter: number;
   private sessionIdCounter: number;
+  private lessonIdCounter: number;
+  private lessonMistakeIdCounter: number;
 
   constructor() {
     this.studentsData = new Map();
