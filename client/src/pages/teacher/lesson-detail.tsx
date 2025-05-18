@@ -37,6 +37,8 @@ export default function LessonDetail() {
   const { data: lesson, isLoading: isLoadingLesson, error: lessonError } = useQuery<Lesson>({
     queryKey: ["/api/lessons", lessonId],
     enabled: !!lessonId && !isNaN(lessonId),
+    retry: 3,
+    retryDelay: 1000,
   });
 
   // Get student details
@@ -49,6 +51,8 @@ export default function LessonDetail() {
   const { data: mistakes = [], isLoading: isLoadingMistakes } = useQuery<LessonMistake[]>({
     queryKey: ["/api/lesson-mistakes", lessonId],
     enabled: !!lessonId && !isNaN(lessonId),
+    retry: 3,
+    retryDelay: 1000,
   });
 
   // Form for adding mistakes

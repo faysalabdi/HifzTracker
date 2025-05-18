@@ -74,7 +74,7 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
       surahEnd: "",
       ayahEnd: 1,
       notes: "",
-      progress: "In Progress"
+      progress: "In Progress" // Default value, not shown in form
     },
   });
   
@@ -301,31 +301,7 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="progress"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Progress</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Not Started">Not Started</SelectItem>
-                      <SelectItem value="In Progress">In Progress</SelectItem>
-                      <SelectItem value="Completed">Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Progress field removed - progress is managed via Complete Lesson button */}
 
             <DialogFooter>
               <Button
