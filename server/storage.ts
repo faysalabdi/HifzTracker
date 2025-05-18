@@ -1,8 +1,13 @@
 import { 
+  users, User, InsertUser,
   students, Student, InsertStudent, 
+  teacherStudents, TeacherStudent, InsertTeacherStudent,
   mistakes, Mistake, InsertMistake,
   sessions, Session, InsertSession, 
+  lessons, Lesson, InsertLesson,
+  lessonMistakes, LessonMistake, InsertLessonMistake,
   SessionWithDetails, StudentWithStats, MistakeWithDetails,
+  LessonWithDetails, LessonMistakeWithDetails,
   MistakeType
 } from "@shared/schema";
 
@@ -108,12 +113,20 @@ export class MemStorage implements IStorage {
   private lessonMistakeIdCounter: number;
 
   constructor() {
+    this.usersData = new Map();
     this.studentsData = new Map();
+    this.teacherStudentsData = new Map();
     this.mistakesData = new Map();
     this.sessionsData = new Map();
+    this.lessonsData = new Map();
+    this.lessonMistakesData = new Map();
+    
+    this.userIdCounter = 1;
     this.studentIdCounter = 1;
     this.mistakeIdCounter = 1;
     this.sessionIdCounter = 1;
+    this.lessonIdCounter = 1;
+    this.lessonMistakeIdCounter = 1;
 
     // Initialize with some sample data
     this.initializeSampleData();
