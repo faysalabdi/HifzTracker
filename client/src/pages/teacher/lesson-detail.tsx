@@ -20,7 +20,7 @@ import { Lesson, LessonMistake, MistakeType } from "@shared/schema";
 
 // Form schema for adding mistakes
 const mistakeSchema = z.object({
-  type: z.enum(mistakeTypes as [string, ...string[]]),
+  type: z.enum(["tajweed", "word", "stuck"]),
   ayah: z.number().min(1, "Ayah number must be at least 1"),
   details: z.string().optional(),
 });
