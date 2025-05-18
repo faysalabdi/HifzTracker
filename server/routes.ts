@@ -205,13 +205,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
         surahEnd,
         ayahEnd,
         notes,
-        progress
+        progress: progress || "In Progress" // Default to In Progress
       });
       
       res.status(201).json(lesson);
     } catch (error) {
       console.error("Error creating lesson:", error);
       res.status(500).json({ message: "Failed to create lesson" });
+    }
+  });
+  
+  // Get a single lesson by ID
+  app.get(`${apiPrefix}/lessons/:id`, async (req, res) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      const lesson = await storage.getLessonWithDetails(lessonId);
+      
+      if (!lesson) {
+        return res.status(404).json({ message: "Lesson not found" });
+      }
+      
+      res.json(lesson);
+    } catch (error) {
+      console.error("Error fetching lesson:", error);
+      res.status(500).json({ message: "Failed to fetch lesson" });
+    }
+  });
+  
+  // Complete a lesson
+  app.patch(`${apiPrefix}/lessons/:id/complete`, isAuthenticated, async (req, res) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      const lesson = await storage.getLesson(lessonId);
+      
+      if (!lesson) {
+        return res.status(404).json({ message: "Lesson not found" });
+      }
+      
+      // Check if the user is the teacher for this lesson
+      if (req.session.user?.role === 'teacher' && req.session.user?.id !== lesson.teacherId) {
+        return res.status(403).json({ message: "You are not authorized to complete this lesson" });
+      }
+      
+      const updatedLesson = await storage.updateLesson(lessonId, { progress: "Completed" });
+      res.json(updatedLesson);
+    } catch (error) {
+      console.error("Error completing lesson:", error);
+      res.status(500).json({ message: "Failed to complete lesson" });
+    }
+  });
+  
+  // Get lesson mistakes
+  app.get(`${apiPrefix}/lesson-mistakes/:lessonId`, async (req, res) => {
+    try {
+      const lessonId = parseInt(req.params.lessonId);
+      const mistakes = await storage.getLessonMistakesByLesson(lessonId);
+      res.json(mistakes);
+    } catch (error) {
+      console.error("Error fetching lesson mistakes:", error);
+      res.status(500).json({ message: "Failed to fetch lesson mistakes" });
+    }
+  });
+  
+  // Create a lesson mistake
+  app.post(`${apiPrefix}/lesson-mistakes`, isAuthenticated, async (req, res) => {
+    try {
+      const { lessonId, studentId, type, ayah, details } = req.body;
+      
+      if (!lessonId || !studentId || !type || !ayah) {
+        return res.status(400).json({ message: "Lesson ID, Student ID, type, and ayah are required" });
+      }
+      
+      const mistake = await storage.createLessonMistake({
+        lessonId,
+        studentId,
+        type,
+        ayah,
+        details: details || null
+      });
+      
+      res.status(201).json(mistake);
+    } catch (error) {
+      console.error("Error creating lesson mistake:", error);
+      res.status(500).json({ message: "Failed to create lesson mistake" });
     }
   });
   

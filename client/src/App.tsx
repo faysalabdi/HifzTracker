@@ -106,6 +106,13 @@ function App() {
             {(params) => <AuthenticatedRoute component={TeacherDashboard} requiredRole="teacher" params={params} />}
           </Route>
           
+          <Route path="/teacher/lesson/:id">
+            {(params) => {
+              const LessonDetail = React.lazy(() => import("./pages/teacher/lesson-detail"));
+              return <AuthenticatedRoute component={LessonDetail} requiredRole="teacher" params={params} />;
+            }}
+          </Route>
+          
           <Route path="/student/dashboard">
             {(params) => <AuthenticatedRoute component={StudentDashboard} requiredRole="student" params={params} />}
           </Route>
