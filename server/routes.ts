@@ -259,6 +259,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiPrefix}/lesson-mistakes/:lessonId`, async (req, res) => {
     try {
       const lessonId = parseInt(req.params.lessonId);
+      // First check if the lesson exists
+      const lesson = await storage.getLesson(lessonId);
+      if (!lesson) {
+        return res.status(404).json({ message: "Lesson not found" });
+      }
       const mistakes = await storage.getLessonMistakesByLesson(lessonId);
       res.json(mistakes);
     } catch (error) {

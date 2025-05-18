@@ -49,7 +49,7 @@ const lessonSchema = z.object({
   surahEnd: z.string().min(1, { message: "Please select an ending surah" }),
   ayahEnd: z.coerce.number().min(1, { message: "Please enter a valid ayah number" }),
   notes: z.string().optional(),
-  progress: z.number().min(0).max(100)
+  progress: z.string().default("In Progress")
 });
 
 interface CreateLessonDialogProps {
@@ -73,15 +73,15 @@ export function CreateLessonDialog({ students, teacherId, trigger }: CreateLesso
       surahEnd: "",
       ayahEnd: 1,
       notes: "",
-      progress: 0
+      progress: "In Progress"
     },
   });
 
   const createLessonMutation = useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async (formData: z.infer<typeof lessonSchema>) => {
       return await apiRequest("POST", "/api/teacher/lessons", {
-        ...data,
-        studentId: parseInt(data.studentId),
+        ...formData,
+        studentId: parseInt(formData.studentId),
       });
     },
     onSuccess: () => {
@@ -103,7 +103,7 @@ export function CreateLessonDialog({ students, teacherId, trigger }: CreateLesso
     },
   });
 
-  function onSubmit(data) {
+  function onSubmit(data: z.infer<typeof lessonSchema>) {
     createLessonMutation.mutate(data);
   }
 
@@ -298,16 +298,22 @@ export function CreateLessonDialog({ students, teacherId, trigger }: CreateLesso
               name="progress"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Progress: {field.value}%</FormLabel>
-                  <FormControl>
-                    <Slider
-                      min={0}
-                      max={100}
-                      step={5}
-                      defaultValue={[field.value]}
-                      onValueChange={(values) => field.onChange(values[0])}
-                    />
-                  </FormControl>
+                  <FormLabel>Progress</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Not Started">Not Started</SelectItem>
+                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
