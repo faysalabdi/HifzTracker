@@ -20,7 +20,7 @@ import { Lesson, LessonMistake, MistakeType, Student } from "@shared/schema";
 
 // Form schema for adding mistakes
 const mistakeSchema = z.object({
-  type: z.enum(["tajweed", "word", "stuck"]),
+  type: z.enum(mistakeTypes),
   ayah: z.number().min(1, "Ayah number must be at least 1"),
   details: z.string().optional(),
 });
@@ -77,6 +77,7 @@ export default function LessonDetail() {
         type: data.type as MistakeType,
         ayah: data.ayah,
         description: data.details || null,
+        surah: lesson?.surahStart || "",
       });
     },
     onSuccess: () => {

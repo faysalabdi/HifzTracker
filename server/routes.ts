@@ -275,10 +275,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a lesson mistake
   app.post(`${apiPrefix}/lesson-mistakes`, isAuthenticated, async (req, res) => {
     try {
-      const { lessonId, studentId, type, ayah, details } = req.body;
+      const { lessonId, studentId, type, ayah, details, description, surah } = req.body;
       
       if (!lessonId || !studentId || !type || !ayah) {
         return res.status(400).json({ message: "Lesson ID, Student ID, type, and ayah are required" });
+      }
+      
+      // Get the surah from the lesson if not provided
+      let mistakeSurah = surah;
+      if (!mistakeSurah) {
+        const lesson = await storage.getLesson(lessonId);
+        if (lesson) {
+          mistakeSurah = lesson.surahStart;
+        } else {
+          mistakeSurah = ""; // Default empty string if lesson not found
+        }
       }
       
       const mistake = await storage.createLessonMistake({
@@ -286,7 +297,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         studentId,
         type,
         ayah,
-        details: details || null
+        surah: mistakeSurah,
+        description: description || details || null
       });
       
       res.status(201).json(mistake);

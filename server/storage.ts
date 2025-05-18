@@ -602,8 +602,17 @@ export class MemStorage implements IStorage {
     const totalLessons = lessons.length;
     const completedLessons = lessons.filter(lesson => lesson.progress === "Completed").length;
     
-    // Get unique students
+    // Get unique students from both lessons and direct teacher-student assignments
     const uniqueStudentIds = new Set(lessons.map(lesson => lesson.studentId));
+    
+    // Add students directly assigned to this teacher
+    const teacherStudentRelations = Array.from(this.teacherStudentsData.values())
+      .filter(rel => rel.teacherId === teacherId);
+    
+    teacherStudentRelations.forEach(relation => {
+      uniqueStudentIds.add(relation.studentId);
+    });
+    
     const studentsCount = uniqueStudentIds.size;
     
     // Calculate average mistakes per lesson
