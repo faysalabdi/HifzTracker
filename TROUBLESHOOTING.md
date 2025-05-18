@@ -117,15 +117,48 @@
   description: description || details || null
   ```
 
-## Pending Issues
+## Resolved Issues (Continued)
 
-### 1. Progress Field Removal
+### 6. Progress Field in Lesson Creation Form
 
-**Issue:** The progress field should be removed from lesson creation form, as it should always start as "In Progress" and only be completed via the Complete Lesson button.
+**Issue:** The progress field in the lesson creation form was causing confusion since lesson progress should only be managed via the Complete Lesson button.
 
-### 2. Persistent Lesson Not Found Errors
+**Root Cause:**
+- The progress field was unnecessarily exposed in the UI when it should be managed programmatically.
 
-**Issue:** Some users still experience "Lesson Not Found" errors when clicking Track, possibly due to:
-- Race conditions where the lesson ID is not properly loaded
-- Incorrect API endpoint format or routing issues
-- Permissions problems where the teacher doesn't have access to view/modify the lesson
+**Solution:**
+- Removed the progress form field from the lesson creation dialog
+- Default progress is set to "In Progress" automatically
+- Progress can only be updated to "Completed" via the Complete Lesson button
+
+### 7. Persistent Lesson Not Found Errors
+
+**Issue:** Users experienced "Lesson Not Found" errors when clicking Track on a lesson.
+
+**Root Cause:**
+- The API was returning 404 errors when lessons were not found, causing the UI to break
+- There was no retry mechanism to handle temporary loading issues
+- Lesson queries did not have sufficient retry logic
+
+**Solution:**
+- Updated the lesson mistakes API to handle not-found lessons gracefully (return empty array instead of 404)
+- Added retry logic to the lesson and mistake queries (3 retries with delay)
+- Added a new Retry button on the Lesson Not Found page to help recover from temporary issues
+- Improved loading state handling to show clear feedback during data loading
+
+## Current Issues
+
+### 1. Application Not Starting
+
+**Issue:** The application sometimes fails to start properly.
+
+**Potential Causes:**
+- Typescript errors preventing compilation
+- Database connection issues
+- Conflicting dependencies
+- Port conflicts
+
+**Workaround:**
+- Restart the workflow to reinitialize the application
+- Check console logs for specific error messages
+- Ensure database connection is properly established
