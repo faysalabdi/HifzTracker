@@ -132,6 +132,75 @@ export class MemStorage implements IStorage {
     this.initializeSampleData();
   }
 
+  // User methods
+  async getUsers(): Promise<User[]> {
+    return Array.from(this.usersData.values());
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    return this.usersData.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.usersData.values()).find(
+      user => user.username === username
+    );
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const id = this.userIdCounter++;
+    const createdAt = new Date();
+    const user: User = { ...userData, id, createdAt };
+    this.usersData.set(id, user);
+    return user;
+  }
+
+  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
+    const user = this.usersData.get(id);
+    if (!user) return undefined;
+    
+    const updatedUser: User = { ...user, ...userData };
+    this.usersData.set(id, updatedUser);
+    return updatedUser;
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    return this.usersData.delete(id);
+  }
+
+  // Teacher-Student relation methods
+  async assignTeacherToStudent(teacherId: number, studentId: number): Promise<TeacherStudent> {
+    const key = `${teacherId}-${studentId}`;
+    const relation: TeacherStudent = { teacherId, studentId };
+    this.teacherStudentsData.set(key, relation);
+    return relation;
+  }
+
+  async unassignTeacherFromStudent(teacherId: number, studentId: number): Promise<boolean> {
+    const key = `${teacherId}-${studentId}`;
+    return this.teacherStudentsData.delete(key);
+  }
+
+  async getStudentsByTeacher(teacherId: number): Promise<StudentWithStats[]> {
+    const relations = Array.from(this.teacherStudentsData.values())
+      .filter(relation => relation.teacherId === teacherId);
+    
+    const studentIds = relations.map(relation => relation.studentId);
+    const students = await Promise.all(
+      studentIds.map(id => this.getStudentWithStats(id))
+    );
+    
+    return students.filter((student): student is StudentWithStats => student !== undefined);
+  }
+
+  async getTeacherForStudent(studentId: number): Promise<User | undefined> {
+    const relation = Array.from(this.teacherStudentsData.values())
+      .find(relation => relation.studentId === studentId);
+    
+    if (!relation) return undefined;
+    return this.getUser(relation.teacherId);
+  }
+
   // Student methods
   async getStudents(): Promise<Student[]> {
     return Array.from(this.studentsData.values());
@@ -278,6 +347,128 @@ export class MemStorage implements IStorage {
     return Array.from(this.mistakesData.values())
       .filter(mistake => mistake.studentId === studentId);
   }
+  
+  // Lesson methods (for teachers)
+  async getLessons(): Promise<Lesson[]> {
+    return Array.from(this.lessonsData.values());
+  }
+
+  async getLesson(id: number): Promise<Lesson | undefined> {
+    return this.lessonsData.get(id);
+  }
+
+  async getLessonWithDetails(id: number): Promise<LessonWithDetails | undefined> {
+    const lesson = this.lessonsData.get(id);
+    if (!lesson) return undefined;
+
+    const teacher = await this.getUser(lesson.teacherId);
+    const student = await this.getStudent(lesson.studentId);
+    if (!teacher || !student) return undefined;
+
+    const mistakes = Array.from(this.lessonMistakesData.values())
+      .filter(mistake => mistake.lessonId === id);
+
+    return {
+      ...lesson,
+      teacher,
+      student,
+      mistakeCount: mistakes.length
+    };
+  }
+
+  async createLesson(lessonData: InsertLesson): Promise<Lesson> {
+    const id = this.lessonIdCounter++;
+    const createdAt = new Date();
+    const lesson: Lesson = { ...lessonData, id, createdAt };
+    this.lessonsData.set(id, lesson);
+    return lesson;
+  }
+
+  async updateLesson(id: number, lessonData: Partial<InsertLesson>): Promise<Lesson | undefined> {
+    const lesson = this.lessonsData.get(id);
+    if (!lesson) return undefined;
+    
+    const updatedLesson: Lesson = { ...lesson, ...lessonData };
+    this.lessonsData.set(id, updatedLesson);
+    return updatedLesson;
+  }
+
+  async deleteLesson(id: number): Promise<boolean> {
+    return this.lessonsData.delete(id);
+  }
+
+  async getLessonsByTeacher(teacherId: number): Promise<LessonWithDetails[]> {
+    const lessons = Array.from(this.lessonsData.values())
+      .filter(lesson => lesson.teacherId === teacherId)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return Promise.all(lessons.map(async lesson => {
+      const details = await this.getLessonWithDetails(lesson.id);
+      return details!;
+    }));
+  }
+
+  async getLessonsByStudent(studentId: number): Promise<LessonWithDetails[]> {
+    const lessons = Array.from(this.lessonsData.values())
+      .filter(lesson => lesson.studentId === studentId)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return Promise.all(lessons.map(async lesson => {
+      const details = await this.getLessonWithDetails(lesson.id);
+      return details!;
+    }));
+  }
+
+  async getRecentLessons(limit: number): Promise<LessonWithDetails[]> {
+    const lessons = Array.from(this.lessonsData.values())
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, limit);
+
+    return Promise.all(lessons.map(async lesson => {
+      const details = await this.getLessonWithDetails(lesson.id);
+      return details!;
+    }));
+  }
+  
+  // Lesson Mistake methods (for teachers)
+  async getLessonMistakes(): Promise<LessonMistake[]> {
+    return Array.from(this.lessonMistakesData.values());
+  }
+
+  async getLessonMistake(id: number): Promise<LessonMistake | undefined> {
+    return this.lessonMistakesData.get(id);
+  }
+
+  async createLessonMistake(mistakeData: InsertLessonMistake): Promise<LessonMistake> {
+    const id = this.lessonMistakeIdCounter++;
+    const createdAt = new Date();
+    const mistake: LessonMistake = { ...mistakeData, id, createdAt };
+    this.lessonMistakesData.set(id, mistake);
+    return mistake;
+  }
+
+  async updateLessonMistake(id: number, mistakeData: Partial<InsertLessonMistake>): Promise<LessonMistake | undefined> {
+    const mistake = this.lessonMistakesData.get(id);
+    if (!mistake) return undefined;
+    
+    const updatedMistake: LessonMistake = { ...mistake, ...mistakeData };
+    this.lessonMistakesData.set(id, updatedMistake);
+    return updatedMistake;
+  }
+
+  async deleteLessonMistake(id: number): Promise<boolean> {
+    return this.lessonMistakesData.delete(id);
+  }
+
+  async getLessonMistakesByLesson(lessonId: number): Promise<LessonMistake[]> {
+    return Array.from(this.lessonMistakesData.values())
+      .filter(mistake => mistake.lessonId === lessonId);
+  }
+
+  async getLessonMistakesByStudent(studentId: number): Promise<LessonMistake[]> {
+    return Array.from(this.lessonMistakesData.values())
+      .filter(mistake => mistake.studentId === studentId);
+  }
 
   // Statistics methods
   async getStudentWithStats(id: number): Promise<StudentWithStats | undefined> {
@@ -397,6 +588,83 @@ export class MemStorage implements IStorage {
     return results;
   }
   
+  async getTeacherLessonStats(teacherId: number): Promise<{ 
+    totalLessons: number; 
+    studentsCount: number;
+    averageMistakes: number;
+    completedLessons: number;
+  }> {
+    // Get all lessons for this teacher
+    const lessons = Array.from(this.lessonsData.values())
+      .filter(lesson => lesson.teacherId === teacherId);
+    
+    // Count total and completed lessons
+    const totalLessons = lessons.length;
+    const completedLessons = lessons.filter(lesson => lesson.progress === "Completed").length;
+    
+    // Get unique students
+    const uniqueStudentIds = new Set(lessons.map(lesson => lesson.studentId));
+    const studentsCount = uniqueStudentIds.size;
+    
+    // Calculate average mistakes per lesson
+    let totalMistakes = 0;
+    for (const lesson of lessons) {
+      const lessonMistakes = await this.getLessonMistakesByLesson(lesson.id);
+      totalMistakes += lessonMistakes.length;
+    }
+    
+    const averageMistakes = totalLessons > 0 
+      ? parseFloat((totalMistakes / totalLessons).toFixed(1)) 
+      : 0;
+    
+    return {
+      totalLessons,
+      studentsCount,
+      averageMistakes,
+      completedLessons
+    };
+  }
+
+  async getStudentLessonProgress(studentId: number, days: number): Promise<{ 
+    date: string; 
+    lessonsCount: number; 
+    mistakesCount: number;
+  }[]> {
+    const now = new Date();
+    const startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - days);
+    
+    const results: { date: string; lessonsCount: number; mistakesCount: number }[] = [];
+    
+    // Initialize all dates with zero counts
+    for (let i = 0; i < days; i++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      results.push({ date: dateStr, lessonsCount: 0, mistakesCount: 0 });
+    }
+    
+    // Get lessons for the specific student
+    const lessons = Array.from(this.lessonsData.values())
+      .filter(lesson => lesson.studentId === studentId);
+    
+    // Calculate lesson counts by date
+    for (const lesson of lessons) {
+      const lessonDate = new Date(lesson.date).toISOString().split('T')[0];
+      const resultItem = results.find(item => item.date === lessonDate);
+      
+      if (resultItem) {
+        resultItem.lessonsCount += 1;
+        
+        // Count mistakes for this lesson
+        const lessonMistakes = await this.getLessonMistakesByLesson(lesson.id);
+        resultItem.mistakesCount += lessonMistakes.length;
+      }
+    }
+    
+    return results;
+  }
+  
   async getStudentProgress(studentId: number, days: number): Promise<{ date: string; count: number; mistakeType: MistakeType | null }[]> {
     const now = new Date();
     const startDate = new Date(now);
@@ -457,15 +725,47 @@ export class MemStorage implements IStorage {
 
   // Helper method to initialize sample data
   private initializeSampleData() {
-    // Sample students
-    const sampleStudents: InsertStudent[] = [
-      { name: "Ahmad Hassan", grade: "3", currentJuz: 5, currentSurah: "Al-Baqarah", notes: "" },
-      { name: "Ibrahim Omar", grade: "3", currentJuz: 7, currentSurah: "Al-A'raf", notes: "" },
-      { name: "Yusuf Ali", grade: "2", currentJuz: 3, currentSurah: "Al-Baqarah", notes: "" },
-      { name: "Mohammed Siddiq", grade: "2", currentJuz: 2, currentSurah: "Al-Baqarah", notes: "" }
+    // Sample users (both teachers and students)
+    const sampleUsers: InsertUser[] = [
+      // Teachers
+      { username: "teacher1", name: "Ustadh Ahmed", role: "teacher" },
+      { username: "teacher2", name: "Ustadha Fatima", role: "teacher" },
+      // Students
+      { username: "student1", name: "Ahmad Hassan", role: "student" },
+      { username: "student2", name: "Ibrahim Omar", role: "student" },
+      { username: "student3", name: "Yusuf Ali", role: "student" },
+      { username: "student4", name: "Mohammed Siddiq", role: "student" }
     ];
 
+    // Create users and keep track of their IDs
+    const userIds: Record<string, number> = {};
+    sampleUsers.forEach(user => {
+      this.createUser(user).then(createdUser => {
+        userIds[user.username] = createdUser.id;
+      });
+    });
+
+    // Sample students with references to user accounts
+    const sampleStudents: InsertStudent[] = [
+      { name: "Ahmad Hassan", userId: 3, grade: "3", currentJuz: 5, currentSurah: "Al-Baqarah", notes: "" },
+      { name: "Ibrahim Omar", userId: 4, grade: "3", currentJuz: 7, currentSurah: "Al-A'raf", notes: "" },
+      { name: "Yusuf Ali", userId: 5, grade: "2", currentJuz: 3, currentSurah: "Al-Baqarah", notes: "" },
+      { name: "Mohammed Siddiq", userId: 6, grade: "2", currentJuz: 2, currentSurah: "Al-Baqarah", notes: "" }
+    ];
+
+    // Create students
     sampleStudents.forEach(student => this.createStudent(student));
+    
+    // Assign teachers to students
+    setTimeout(() => {
+      // Teacher 1 assigned to students 1 and 2
+      this.assignTeacherToStudent(1, 1);
+      this.assignTeacherToStudent(1, 2);
+      
+      // Teacher 2 assigned to students 3 and 4
+      this.assignTeacherToStudent(2, 3);
+      this.assignTeacherToStudent(2, 4);
+    }, 100); // Small delay to ensure users and students are created first
 
     // Sample sessions
     const today = new Date();
