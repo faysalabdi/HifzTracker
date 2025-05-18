@@ -152,7 +152,7 @@ export default function TeacherDashboard() {
                           </div>
                         </div>
                       </div>
-                      <div>
+                      <div className="flex items-center gap-2">
                         <Badge className={
                           lesson.progress === "Completed" ? "bg-green-100 text-green-800" :
                           lesson.progress === "In Progress" ? "bg-amber-100 text-amber-800" :
@@ -160,6 +160,13 @@ export default function TeacherDashboard() {
                         }>
                           {lesson.progress}
                         </Badge>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => navigate(`/teacher/lesson/${lesson.id}`)}
+                        >
+                          {lesson.progress === "Completed" ? "View" : "Track"}
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -314,16 +321,22 @@ export default function TeacherDashboard() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex space-x-2">
-                              <Button size="sm" variant="outline">View</Button>
                               <Button 
-                                size="sm"
-                                className={lesson.progress === "Completed" ? 
-                                  "bg-neutral-200 text-neutral-600" : 
-                                  "bg-green-500 hover:bg-green-600"}
-                                disabled={lesson.progress === "Completed"}
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => navigate(`/teacher/lesson/${lesson.id}`)}
                               >
-                                <CheckCircle className="h-4 w-4" />
+                                View
                               </Button>
+                              {lesson.progress !== "Completed" && (
+                                <Button 
+                                  size="sm"
+                                  className="bg-green-500 hover:bg-green-600"
+                                  onClick={() => navigate(`/teacher/lesson/${lesson.id}`)}
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-1" /> Track
+                                </Button>
+                              )}
                             </div>
                           </td>
                         </tr>
