@@ -38,9 +38,7 @@ function AuthenticatedRoute({ component: Component, requiredRole = null, ...rest
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/user"],
     retry: false,
-    onError: () => {
-      navigate("/login");
-    }
+    gcTime: 0
   });
 
   if (isLoading) {
