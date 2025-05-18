@@ -34,7 +34,7 @@ export default function LessonDetail() {
   const [showMistakeDialog, setShowMistakeDialog] = useState(false);
 
   // Get lesson details
-  const { data: lesson, isLoading: isLoadingLesson } = useQuery({
+  const { data: lesson, isLoading: isLoadingLesson, error: lessonError } = useQuery({
     queryKey: ["/api/lessons", lessonId],
     enabled: !!lessonId && !isNaN(lessonId),
   });
@@ -46,8 +46,8 @@ export default function LessonDetail() {
   });
 
   // Get lesson mistakes
-  const { data: mistakes, isLoading: isLoadingMistakes } = useQuery({
-    queryKey: ["/api/lesson-mistakes/" + lessonId],
+  const { data: mistakes = [], isLoading: isLoadingMistakes } = useQuery({
+    queryKey: ["/api/lesson-mistakes", lessonId],
     enabled: !!lessonId && !isNaN(lessonId),
   });
 
