@@ -9,6 +9,7 @@ import { DataCard } from "@/components/ui/data-card";
 import { formatDate } from "@/lib/constants";
 import { LogoutButton } from "@/components/ui/logout-button";
 import { CreateLessonDialog } from "@/components/ui/create-lesson-dialog";
+import { AssignStudentDialog } from "@/components/ui/assign-student-dialog";
 import { 
   UserPlus, 
   Users, 
@@ -42,6 +43,12 @@ export default function TeacherDashboard() {
   // Get assigned students
   const { data: assignedStudents, isLoading: isLoadingStudents } = useQuery({
     queryKey: ["/api/teacher/students", currentUser?.id],
+    enabled: !!currentUser?.id,
+  });
+  
+  // Get all students for the assignment dialog
+  const { data: allStudents, isLoading: isLoadingAllStudents } = useQuery({
+    queryKey: ["/api/students"],
     enabled: !!currentUser?.id,
   });
   
@@ -174,10 +181,16 @@ export default function TeacherDashboard() {
         <TabsContent value="students" className="space-y-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">Assigned Students</h3>
-            <Button size="sm" className="bg-blue-500 hover:bg-blue-600">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Assign New Student
-            </Button>
+            <AssignStudentDialog
+              unassignedStudents={allStudents || []}
+              teacherId={currentUser?.id || 0}
+              trigger={
+                <Button size="sm" className="bg-blue-500 hover:bg-blue-600">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Assign New Student
+                </Button>
+              }
+            />
           </div>
           
           {assignedStudents && assignedStudents.length > 0 ? (
