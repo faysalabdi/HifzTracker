@@ -56,7 +56,7 @@ export default function NewStudentSession() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-          <h1 className="text-2xl font-semibold">New Revision Session</h1>
+          <h1 className="text-2xl font-semibold">New Peer Revision Session</h1>
         </div>
       </div>
       

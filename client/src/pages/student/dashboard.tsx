@@ -255,6 +255,44 @@ export default function StudentDashboard() {
           
           <Card>
             <CardHeader>
+              <CardTitle>All Teacher Lessons</CardTitle>
+              <CardDescription>Lessons assigned by your teacher</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {teacherLessons && teacherLessons.length > 0 ? (
+                <div className="space-y-4">
+                  {teacherLessons.map((lesson) => (
+                    <div key={lesson.id} className="flex items-center justify-between border-b pb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-blue-100 text-blue-800 p-2 rounded-full">
+                          <Book className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium">Lesson with {assignedTeacher?.name}</h4>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-neutral-500">{formatDate(lesson.date)}</span>
+                            <span className="text-neutral-500">• {lesson.surahStart}:{lesson.ayahStart} - {lesson.surahEnd}:{lesson.ayahEnd}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline">
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-neutral-500">
+                  No lessons scheduled
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
               <CardTitle>Lessons with {assignedTeacher?.name || "Teacher"}</CardTitle>
               <CardDescription>Track your progress with your teacher</CardDescription>
             </CardHeader>
