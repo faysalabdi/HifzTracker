@@ -106,7 +106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Teacher-specific Routes
   app.get(`${apiPrefix}/teacher/stats`, isAuthenticated, hasRole('teacher'), async (req, res) => {
     try {
-      const teacherId = req.session.user.id;
+      const teacherId = req.session.user?.id;
       const stats = await storage.getTeacherLessonStats(teacherId);
       res.json(stats);
     } catch (error) {
@@ -117,7 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get(`${apiPrefix}/teacher/students`, isAuthenticated, hasRole('teacher'), async (req, res) => {
     try {
-      const teacherId = req.session.user.id;
+      const teacherId = req.session.user?.id;
       const students = await storage.getStudentsByTeacher(teacherId);
       res.json(students);
     } catch (error) {
@@ -128,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get(`${apiPrefix}/teacher/lessons/recent`, isAuthenticated, hasRole('teacher'), async (req, res) => {
     try {
-      const teacherId = req.session.user.id;
+      const teacherId = req.session.user?.id;
       const limit = parseInt(req.query.limit as string) || 5;
       const lessons = await storage.getLessonsByTeacher(teacherId);
       // Sort by date descending and limit
@@ -139,6 +139,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching teacher's recent lessons:", error);
       res.status(500).json({ message: "Failed to fetch teacher's recent lessons" });
+    }
+  });
+  
+  // Create a new teacher lesson
+  app.post(`${apiPrefix}/teacher/lessons`, isAuthenticated, hasRole('teacher'), async (req, res) => {
+    try {
+      const { studentId, date, surahStart, ayahStart, surahEnd, ayahEnd, notes, progress } = req.body;
+      const teacherId = req.session.user?.id;
+      
+      if (!studentId || !teacherId) {
+        return res.status(400).json({ message: "Student ID and Teacher ID are required" });
+      }
+      
+      const lesson = await storage.createLesson({
+        teacherId,
+        studentId,
+        date: new Date(date),
+        surahStart,
+        ayahStart,
+        surahEnd,
+        ayahEnd,
+        notes,
+        progress
+      });
+      
+      res.status(201).json(lesson);
+    } catch (error) {
+      console.error("Error creating lesson:", error);
+      res.status(500).json({ message: "Failed to create lesson" });
     }
   });
   

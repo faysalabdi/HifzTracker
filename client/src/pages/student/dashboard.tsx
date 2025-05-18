@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { User } from "@shared/schema";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataCard } from "@/components/ui/data-card";
 import { formatDate } from "@/lib/constants";
+import { LogoutButton } from "@/components/ui/logout-button";
 import { 
   Users, 
   BookOpen, 
@@ -22,6 +23,7 @@ import { Progress } from "@/components/ui/progress";
 // Student Dashboard shows teacher lessons and peer revision sessions
 export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
+  const [, navigate] = useLocation();
   
   // Get current authenticated user (student)
   const { data: currentUser, isLoading: isLoadingUser } = useQuery<User>({

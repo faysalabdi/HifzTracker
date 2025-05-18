@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { User } from "@shared/schema";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataCard } from "@/components/ui/data-card";
 import { formatDate } from "@/lib/constants";
+import { LogoutButton } from "@/components/ui/logout-button";
+import { CreateLessonDialog } from "@/components/ui/create-lesson-dialog";
 import { 
   UserPlus, 
   Users, 
@@ -23,6 +25,7 @@ import { Progress } from "@/components/ui/progress";
 // Teacher Dashboard shows assigned students and lesson progression
 export default function TeacherDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
+  const [, navigate] = useLocation();
   
   // Get current authenticated user (teacher)
   const { data: currentUser, isLoading: isLoadingUser } = useQuery<User>({
@@ -72,13 +75,16 @@ export default function TeacherDashboard() {
         <div className="flex gap-2">
           <LogoutButton />
           
-          <Button 
-            className="bg-blue-500 hover:bg-blue-600"
-            onClick={() => navigate("/teacher/new-lesson")}
-          >
-            <Calendar className="mr-2 h-4 w-4" />
-            Schedule Lesson
-          </Button>
+          <CreateLessonDialog 
+            students={assignedStudents || []} 
+            teacherId={currentUser?.id || 0}
+            trigger={
+              <Button className="bg-blue-500 hover:bg-blue-600">
+                <Calendar className="mr-2 h-4 w-4" />
+                Schedule Lesson
+              </Button>
+            }
+          />
         </div>
       </div>
       
