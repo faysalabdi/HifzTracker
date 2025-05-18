@@ -153,6 +153,18 @@ export default function LessonDetail() {
     );
   }
 
+  // More comprehensive loading and error handling
+  if (isLoadingLesson) {
+    return (
+      <div className="p-8 flex justify-center items-center">
+        <div className="text-center">
+          <h2 className="text-xl mb-2">Loading lesson details...</h2>
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+  
   if (!lesson) {
     return (
       <div className="p-8">
@@ -161,8 +173,22 @@ export default function LessonDetail() {
             <div className="text-center py-8">
               <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-4" />
               <h2 className="text-xl font-semibold mb-2">Lesson Not Found</h2>
-              <p className="text-neutral-500 mb-4">The requested lesson could not be found.</p>
-              <Button onClick={() => navigate("/teacher/dashboard")}>Back to Dashboard</Button>
+              <p className="text-neutral-500 mb-4">
+                The requested lesson (ID: {lessonId}) could not be found. 
+                This may be due to a temporary issue or the lesson has been deleted.
+              </p>
+              <Button 
+                onClick={() => navigate("/teacher/dashboard")}
+                className="mr-2"
+              >
+                Back to Dashboard
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/lessons", lessonId] })}
+              >
+                Retry
+              </Button>
             </div>
           </CardContent>
         </Card>
