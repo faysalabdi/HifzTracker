@@ -23,6 +23,7 @@ import NotFound from "@/pages/not-found";
 import LoginPage from "@/pages/login";
 import TeacherDashboard from "@/pages/teacher/dashboard";
 import StudentDashboard from "@/pages/student/dashboard";
+import LessonDetail from "@/pages/teacher/lesson-detail";
 
 interface AuthenticatedRouteProps {
   component: React.ComponentType<any>;
@@ -107,10 +108,7 @@ function App() {
           </Route>
           
           <Route path="/teacher/lesson/:id">
-            {(params) => {
-              const LessonDetail = React.lazy(() => import("./pages/teacher/lesson-detail"));
-              return <AuthenticatedRoute component={LessonDetail} requiredRole="teacher" params={params} />;
-            }}
+            {(params) => <AuthenticatedRoute component={LessonDetail} requiredRole="teacher" params={params} />}
           </Route>
           
           <Route path="/student/dashboard">
