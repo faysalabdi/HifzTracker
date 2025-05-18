@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -56,9 +56,10 @@ interface CreateLessonDialogProps {
   students: Student[];
   teacherId: number;
   trigger: React.ReactNode;
+  initialStudent?: Student | null;
 }
 
-export function CreateLessonDialog({ students, teacherId, trigger }: CreateLessonDialogProps) {
+export function CreateLessonDialog({ students, teacherId, trigger, initialStudent }: CreateLessonDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -66,7 +67,7 @@ export function CreateLessonDialog({ students, teacherId, trigger }: CreateLesso
   const form = useForm({
     resolver: zodResolver(lessonSchema),
     defaultValues: {
-      studentId: "",
+      studentId: initialStudent ? initialStudent.id.toString() : "",
       date: new Date(),
       surahStart: "",
       ayahStart: 1,
@@ -76,6 +77,13 @@ export function CreateLessonDialog({ students, teacherId, trigger }: CreateLesso
       progress: "In Progress"
     },
   });
+  
+  // Reset form when dialog opens with initialStudent
+  useEffect(() => {
+    if (open && initialStudent) {
+      form.setValue("studentId", initialStudent.id.toString());
+    }
+  }, [open, initialStudent, form]);
 
   const createLessonMutation = useMutation({
     mutationFn: async (formData: z.infer<typeof lessonSchema>) => {

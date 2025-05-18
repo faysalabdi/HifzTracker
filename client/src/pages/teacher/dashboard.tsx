@@ -244,8 +244,23 @@ export default function TeacherDashboard() {
                   </CardContent>
                   <CardFooter className="pt-2">
                     <div className="flex space-x-2 w-full">
-                      <Button variant="outline" className="flex-1">Student Profile</Button>
-                      <Button className="flex-1 bg-blue-500 hover:bg-blue-600">New Lesson</Button>
+                      <Button 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => navigate(`/students/${student.id}`)}
+                      >
+                        Student Profile
+                      </Button>
+                      <CreateLessonDialog
+                        students={assignedStudents || []}
+                        teacherId={currentUser?.id || 0}
+                        initialStudent={student}
+                        trigger={
+                          <Button className="flex-1 bg-blue-500 hover:bg-blue-600">
+                            New Lesson
+                          </Button>
+                        }
+                      />
                     </div>
                   </CardFooter>
                 </Card>
