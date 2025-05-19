@@ -87,10 +87,12 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
 
   const createLessonMutation = useMutation({
     mutationFn: async (formData: z.infer<typeof lessonSchema>) => {
-      return await apiRequest("POST", "/api/teacher/lessons", {
+      const response = await apiRequest("POST", "/api/teacher/lessons", {
         ...formData,
         studentId: parseInt(formData.studentId),
       });
+      console.log("API Response:", response); // Debug log
+      return response;
     },
     onSuccess: (data) => {
       toast({
@@ -103,11 +105,21 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
       setOpen(false);
       
       // Navigate to the lesson tracking page
-      if (data) {
-        // Redirect to the lesson detail page for tracking
+      console.log("Lesson created with data:", data); // Debug log
+      if (data && data.id) {
+        // Make sure we have a valid lesson ID before redirecting
+        const lessonId = data.id;
+        console.log("Redirecting to lesson ID:", lessonId);
         setTimeout(() => {
-          window.location.href = `/teacher/lesson/${data.id}`;
-        }, 100);
+          window.location.href = `/teacher/lesson/${lessonId}`;
+        }, 300);
+      } else {
+        console.error("Missing lesson ID in response:", data);
+        toast({
+          title: "Warning",
+          description: "Lesson created but couldn't navigate to it. Please check your lessons on the dashboard.",
+          variant: "destructive",
+        });
       }
     },
     onError: (error) => {

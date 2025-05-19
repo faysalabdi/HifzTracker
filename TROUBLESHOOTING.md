@@ -146,6 +146,53 @@
 - Added a new Retry button on the Lesson Not Found page to help recover from temporary issues
 - Improved loading state handling to show clear feedback during data loading
 
+### 8. Automatic Navigation to Lesson Tracking Page Not Working
+
+**Issue:** After creating a new lesson, the application didn't automatically navigate to the lesson tracking page and showed an error "Lesson ID: NaN not found".
+
+**Root Cause:**
+- The API request function wasn't parsing the JSON response, so the lesson ID wasn't accessible in the success handler
+- The API was returning a Response object instead of a parsed JSON object with the lesson data
+
+**Solution:**
+- Modified the `apiRequest` function in `queryClient.ts` to automatically parse the JSON response:
+  ```javascript
+  export async function apiRequest(
+    method: string,
+    url: string,
+    data?: unknown | undefined,
+  ): Promise<any> {
+    const res = await fetch(url, {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
+
+    await throwIfResNotOk(res);
+    // Parse JSON response for all API requests
+    return await res.json();
+  }
+  ```
+- Added additional error handling and logging to the lesson creation process to ensure valid navigation:
+  ```javascript
+  if (data && data.id) {
+    // Make sure we have a valid lesson ID before redirecting
+    const lessonId = data.id;
+    console.log("Redirecting to lesson ID:", lessonId);
+    setTimeout(() => {
+      window.location.href = `/teacher/lesson/${lessonId}`;
+    }, 300);
+  } else {
+    console.error("Missing lesson ID in response:", data);
+    toast({
+      title: "Warning",
+      description: "Lesson created but couldn't navigate to it. Please check your lessons on the dashboard.",
+      variant: "destructive",
+    });
+  }
+  ```
+
 ## Current Issues
 
 ### 1. Application Not Starting
