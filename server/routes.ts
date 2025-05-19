@@ -61,27 +61,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username, role } = req.body;
       
-      if (!username || !role) {
-        return res.status(400).json({ message: "Username and role are required" });
+      if (!username) {
+        return res.status(400).json({ message: "Username is required" });
       }
+      
+      // Log attempt
+      console.log("Login attempt for:", username, "with role:", role);
       
       let user = await storage.getUserByUsername(username);
       
       // For demo, auto-create user if not exists
       if (!user) {
         // Generate a name based on the username
-        const name = username.charAt(0).toUpperCase() + username.slice(1);
+        let name = username;
         
-        // Create new user
+        // Make specific user names for demo users
+        if (username === "teacher1") {
+          name = "Ustadh Ahmed";
+        } else if (username === "teacher2") {
+          name = "Ustadha Fatima";
+        } else if (username === "student1") {
+          name = "Yusuf Ali";
+        } else if (username === "student2") {
+          name = "Aisha Ahmed";
+        } else {
+          name = username.charAt(0).toUpperCase() + username.slice(1);
+        }
+        
+        // Create new user with the provided role or default to student
+        const userRole = (role === "teacher" || role === "student") ? role : "student";
+        
+        console.log("Creating new user:", name, "with role:", userRole);
+        
         user = await storage.createUser({
           username,
           name,
-          role: role as UserRole
+          role: userRole as UserRole
         });
+      }
+      
+      // Check if the user's role matches the requested role (if provided)
+      if (role && user.role !== role) {
+        console.log("Role mismatch - user.role:", user.role, "requested role:", role);
+        if (role === "teacher" && user.role === "student") {
+          return res.status(403).json({ message: "This account doesn't have teacher privileges" });
+        } else if (role === "student" && user.role === "teacher") {
+          return res.status(403).json({ message: "This account is registered as a teacher, not a student" });
+        }
       }
       
       // Store user in session
       req.session.user = user;
+      console.log("User logged in successfully:", user.username, user.role);
       
       res.json(user);
     } catch (error) {
