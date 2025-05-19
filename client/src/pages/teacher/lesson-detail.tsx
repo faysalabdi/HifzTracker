@@ -146,7 +146,9 @@ export default function LessonDetail() {
   }
 
   function handleCompleteLesson() {
-    completeLessonMutation.mutate();
+    if (window.confirm("Are you sure you want to complete this lesson? This will update the student's progress.")) {
+      completeLessonMutation.mutate();
+    }
   }
 
   if (isLoadingLesson || isLoadingStudent) {

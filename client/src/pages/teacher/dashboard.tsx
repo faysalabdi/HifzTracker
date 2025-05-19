@@ -233,8 +233,12 @@ export default function TeacherDashboard() {
                     
                     <div className="text-sm">
                       <div className="flex justify-between mb-1">
-                        <span>Current Surah</span>
-                        <span>{student.currentSurah || "N/A"}</span>
+                        <span>Current Position</span>
+                        <span>
+                          {student.currentSurah ? 
+                            `${student.currentSurah} (Ayah ${student.currentAyah || 1})` : 
+                            "N/A"}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Avg. Mistakes</span>
