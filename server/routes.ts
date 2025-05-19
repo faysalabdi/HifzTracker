@@ -50,8 +50,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     secret: 'hifz-tracker-secret', // In production, use environment variable
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 1 day
+    cookie: { 
+      secure: false,  // Set to true in production with HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      httpOnly: true, 
+      sameSite: 'lax'
+    }
   }));
+  
+  // Add session debug middleware
+  app.use((req, res, next) => {
+    console.log("Session ID:", req.sessionID);
+    console.log("Session data:", req.session);
+    next();
+  });
   
   // API prefix
   const apiPrefix = "/api";
