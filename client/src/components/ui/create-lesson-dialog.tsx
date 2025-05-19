@@ -61,6 +61,7 @@ interface CreateLessonDialogProps {
 
 export function CreateLessonDialog({ students, teacherId, trigger, initialStudent }: CreateLessonDialogProps) {
   const [open, setOpen] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>(initialStudent ? initialStudent.id.toString() : "");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -82,8 +83,21 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
   useEffect(() => {
     if (open && initialStudent) {
       form.setValue("studentId", initialStudent.id.toString());
+      setSelectedStudentId(initialStudent.id.toString());
     }
   }, [open, initialStudent, form]);
+  
+  // When a student is selected, auto-fill the starting position based on their current progress
+  useEffect(() => {
+    if (selectedStudentId) {
+      const student = students.find(s => s.id.toString() === selectedStudentId);
+      if (student && student.currentSurah) {
+        // Use the student's current position to populate the starting position
+        form.setValue("surahStart", student.currentSurah);
+        form.setValue("ayahStart", 1); // Default to start from beginning of the surah
+      }
+    }
+  }, [selectedStudentId, students, form]);
 
   const createLessonMutation = useMutation({
     mutationFn: async (formData: z.infer<typeof lessonSchema>) => {

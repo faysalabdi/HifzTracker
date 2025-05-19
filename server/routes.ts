@@ -290,7 +290,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "You are not authorized to complete this lesson" });
       }
       
+      // Update the lesson to completed status
       const updatedLesson = await storage.updateLesson(lessonId, { progress: "Completed" });
+      
+      // Update the student's current position
+      // Find the surah number from the text for currentJuz calculation
+      const student = await storage.getStudent(lesson.studentId);
+      if (student) {
+        // Get the surah number for the ending position
+        const surahNames = Object.keys(surahs);
+        const surahIndex = surahNames.indexOf(lesson.surahEnd);
+        
+        // Convert to number to store in student profile
+        const juzForSurah = Math.ceil((surahIndex + 1) / 4); // Approximate mapping
+        
+        // Update student record with the ending position of this lesson
+        await storage.updateStudent(lesson.studentId, {
+          currentSurah: lesson.surahEnd,
+          currentJuz: juzForSurah || student.currentJuz // Fallback to current juz if we can't calculate
+        });
+      }
+      
       res.json(updatedLesson);
     } catch (error) {
       console.error("Error completing lesson:", error);
