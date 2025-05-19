@@ -12,7 +12,7 @@ export default function Sidebar({ currentPath }: SidebarProps) {
       <div className="p-5 border-b border-neutral-100">
         <div className="flex items-center gap-2">
           <BookOpen className="text-primary-500 h-6 w-6" />
-          <h1 className="font-heading font-semibold text-xl text-primary-500">Hifz Tracker</h1>
+          <Link href="/dashboard"><h1 className="font-heading font-semibold text-xl text-primary-500">Hifz Tracker</h1></Link>
         </div>
       </div>
       <nav className="p-3">

@@ -19,15 +19,15 @@ export const navItems = [
     icon: Users
   },
   {
-    name: "New Session",
+    name: "New Revision Session",
     path: "/new-session",
     icon: Plus
   },
-  {
-    name: "Progress",
-    path: "/progress",
-    icon: TrendingUp
-  },
+  // {
+  //   name: "Progress",
+  //   path: "/progress",
+  //   icon: TrendingUp
+  // },
   {
     name: "Reports",
     path: "/reports",
