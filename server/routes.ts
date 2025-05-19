@@ -142,7 +142,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (err) {
         return res.status(500).json({ message: "Failed to logout" });
       }
-      res.json({ message: "Logged out successfully" });
+      // Redirect to login page instead of returning JSON
+      res.redirect('/login');
     });
   });
   
