@@ -299,19 +299,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update the student's current position including ayah
       const student = await storage.getStudent(lesson.studentId);
       if (student) {
-        // Get the surah number for the ending position
-        const surahNames = Object.keys(surahs);
-        const surahIndex = surahNames.indexOf(lesson.surahEnd);
+        // Import utilities for tracking Quran progress
+        const { updateCompletedJuz } = require('./utils');
         
-        // Convert to number to store in student profile
-        const juzForSurah = Math.ceil((surahIndex + 1) / 4); // Approximate mapping
+        // Update the completedJuz array with any newly completed juz based on current position
+        const updatedCompletedJuz = updateCompletedJuz(
+          student.completedJuz,
+          lesson.surahEnd,
+          lesson.ayahEnd
+        );
         
-        // Update student record with the ending position of this lesson,
-        // including both surah and ayah
+        // Update the student with the new current position and completed juz
+        // Use the getSurahJuz function to get the current juz
+        const { getSurahJuz } = require('./utils');
+        const currentJuz = getSurahJuz(lesson.surahEnd, lesson.ayahEnd) || student.currentJuz;
+        
+        // Update student record with the ending position, completed juz, and current juz
         await storage.updateStudent(lesson.studentId, {
           currentSurah: lesson.surahEnd,
           currentAyah: lesson.ayahEnd, // Store the ending ayah as well
-          currentJuz: juzForSurah || student.currentJuz // Fallback to current juz if we can't calculate
+          currentJuz: currentJuz, // Use the calculated current juz
+          completedJuz: updatedCompletedJuz // Update the list of completed juz
         });
       }
       
