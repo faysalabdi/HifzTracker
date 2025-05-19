@@ -24,6 +24,7 @@ export const students = pgTable("students", {
   // No grade field for adult students
   grade: text("grade").default("adult").notNull(),
   currentJuz: integer("current_juz").notNull(),
+  completedJuz: text("completed_juz").default("[]"), // Stores array of completed juz as JSON string
   currentSurah: text("current_surah"),
   currentAyah: integer("current_ayah").default(1),
   notes: text("notes"),

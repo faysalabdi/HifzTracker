@@ -108,15 +108,16 @@ export default function StudentDashboard() {
             <DataCard
               icon={<Users className="text-secondary-500 h-6 w-6" />}
               iconBackground="bg-secondary-50"
-              title="Total Sessions"
-              value={studentDetails?.sessionCount || 0}
+              title="Completed Juz"
+              value={studentDetails?.completedJuz ? JSON.parse(studentDetails.completedJuz).length : 0}
+              suffix={`/30`}
             />
             
             <DataCard
               icon={<AlertTriangle className="text-accent-500 h-6 w-6" />}
               iconBackground="bg-accent-50"
               title="Avg. Mistakes"
-              value={studentDetails?.averageMistakes.toFixed(1) || 0}
+              value={studentDetails?.averageMistakes?.toFixed(1) || "0.0"}
             />
           </div>
           
@@ -129,7 +130,9 @@ export default function StudentDashboard() {
                   <CardDescription>Current status of your Hifz journey</CardDescription>
                 </div>
                 <Badge className="bg-green-100 text-green-800 px-3">
-                  Juz {studentDetails?.currentJuz}/30
+                  {studentDetails?.completedJuz ? 
+                    `${JSON.parse(studentDetails.completedJuz).length}/30 Juz` : 
+                    "0/30 Juz"}
                 </Badge>
               </div>
             </CardHeader>
@@ -137,9 +140,16 @@ export default function StudentDashboard() {
               <div className="mb-4">
                 <div className="flex justify-between text-sm mb-1">
                   <span>Overall Progress</span>
-                  <span>{Math.round((studentDetails?.currentJuz || 0) / 30 * 100)}%</span>
+                  <span>{studentDetails?.completedJuz ? 
+                    `${Math.round((JSON.parse(studentDetails.completedJuz).length / 30) * 100)}%` : 
+                    "0%"}
+                  </span>
                 </div>
-                <Progress value={(studentDetails?.currentJuz || 0) / 30 * 100} className="h-2" />
+                <Progress 
+                  value={studentDetails?.completedJuz ? 
+                    (JSON.parse(studentDetails.completedJuz).length / 30) * 100 : 0} 
+                  className="h-2" 
+                />
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
