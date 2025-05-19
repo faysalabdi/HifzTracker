@@ -10,6 +10,7 @@ import { formatDate } from "@/lib/constants";
 import { LogoutButton } from "@/components/ui/logout-button";
 import { CreateLessonDialog } from "@/components/ui/create-lesson-dialog";
 import { AssignStudentDialog } from "@/components/ui/assign-student-dialog";
+import { CreateStudentDialog } from "@/components/ui/create-student-dialog";
 import { 
   UserPlus, 
   Users, 
@@ -188,16 +189,27 @@ export default function TeacherDashboard() {
         <TabsContent value="students" className="space-y-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">Assigned Students</h3>
-            <AssignStudentDialog
-              unassignedStudents={allStudents || []}
-              teacherId={currentUser?.id || 0}
-              trigger={
-                <Button size="sm" className="bg-blue-500 hover:bg-blue-600">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Assign New Student
-                </Button>
-              }
-            />
+            <div className="flex gap-2">
+              <CreateStudentDialog 
+                teacherId={currentUser?.id || 0}
+                trigger={
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Create Student
+                  </Button>
+                }
+              />
+              <AssignStudentDialog
+                unassignedStudents={allStudents || []}
+                teacherId={currentUser?.id || 0}
+                trigger={
+                  <Button size="sm" className="bg-blue-500 hover:bg-blue-600">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Assign Student
+                  </Button>
+                }
+              />
+            </div>
           </div>
           
           {assignedStudents && assignedStudents.length > 0 ? (

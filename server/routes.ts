@@ -212,6 +212,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to assign student" });
     }
   });
+
+  // Create a new student with user account and assign to teacher
+  app.post(`${apiPrefix}/teacher/create-student`, isAuthenticated, hasRole('teacher'), async (req, res) => {
+    try {
+      const teacherId = req.session.user?.id;
+      
+      if (!teacherId) {
+        return res.status(401).json({ message: "Teacher ID is required" });
+      }
+      
+      // Extract data from request
+      const { username, name, grade, currentJuz, currentSurah, currentAyah, notes } = req.body;
+      
+      // First create a user account for the student
+      const newUser = await storage.createUser({
+        username,
+        name,
+        role: "student"
+      });
+      
+      // Then create a student record
+      const newStudent = await storage.createStudent({
+        name,
+        userId: newUser.id,
+        grade,
+        currentJuz,
+        currentSurah,
+        currentAyah,
+        completedJuz: "[]", // Start with empty completed juz array
+        notes
+      });
+      
+      // Assign the student to the teacher
+      await storage.assignTeacherToStudent(teacherId, newStudent.id);
+      
+      res.status(201).json(newStudent);
+    } catch (error) {
+      console.error("Error creating student:", error);
+      res.status(500).json({ message: "Failed to create student" });
+    }
+  });
   
   app.get(`${apiPrefix}/teacher/lessons/recent`, isAuthenticated, hasRole('teacher'), async (req, res) => {
     try {
