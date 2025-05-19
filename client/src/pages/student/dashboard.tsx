@@ -14,7 +14,8 @@ import {
   Calendar, 
   AlertTriangle,
   Award,
-  BookMarked
+  BookMarked,
+  Book
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -147,7 +148,10 @@ export default function StudentDashboard() {
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <BookMarked className="h-5 w-5 text-blue-600" />
-                      <span className="font-medium">{studentDetails?.currentSurah || "N/A"}</span>
+                      <span className="font-medium">
+                        {studentDetails?.currentSurah || "N/A"}
+                        {studentDetails?.currentAyah ? ` : Ayah ${studentDetails.currentAyah}` : ""}
+                      </span>
                     </div>
                   </div>
                 </div>

@@ -392,9 +392,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Student-specific Routes
+  app.get(`${apiPrefix}/students/details`, isAuthenticated, hasRole('student'), async (req, res) => {
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const userId = req.session.user.id;
+      
+      // Get the student record
+      const students = await storage.getStudents();
+      const student = students.find(s => s.userId === userId);
+      
+      if (!student) {
+        return res.status(404).json({ message: "Student not found" });
+      }
+      
+      res.json(student);
+    } catch (error) {
+      console.error("Error fetching student details:", error);
+      res.status(500).json({ message: "Failed to fetch student details" });
+    }
+  });
+  
   app.get(`${apiPrefix}/student/teacher`, isAuthenticated, hasRole('student'), async (req, res) => {
     try {
-      // Use the userId from the student record
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
       const userId = req.session.user.id;
       
       // Get the student record first
