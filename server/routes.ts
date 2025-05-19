@@ -592,10 +592,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Students API
-  app.get(`${apiPrefix}/students`, async (req, res) => {
+  app.get(`${apiPrefix}/students`, isAuthenticated, async (req, res) => {
     try {
-      const students = await storage.getStudents();
-      res.json(students);
+      // If it's a student user, return only basic info needed for peer sessions
+      if (req.session?.user?.role === "student") {
+        const students = await storage.getStudents();
+        // Return basic student info (just what's needed for peer sessions)
+        const basicStudentInfo = students.map(student => ({
+          id: student.id,
+          name: student.name,
+          grade: student.grade,
+          currentJuz: student.currentJuz
+        }));
+        res.json(basicStudentInfo);
+      } else {
+        // For teachers, return full student details
+        const students = await storage.getStudents();
+        res.json(students);
+      }
     } catch (error) {
       res.status(500).json({ message: "Failed to retrieve students" });
     }
@@ -610,13 +624,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get(`${apiPrefix}/students/:id`, async (req, res) => {
+  app.get(`${apiPrefix}/students/:id`, isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const student = await storage.getStudent(id);
       
       if (!student) {
         return res.status(404).json({ message: "Student not found" });
+      }
+      
+      // For student users, only allow viewing their own data
+      if (req.session?.user?.role === "student") {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        // If this is not the student's own record, return error
+        if (!currentUserStudent || currentUserStudent.id !== id) {
+          return res.status(403).json({ message: "Permission denied: You can only view your own student record" });
+        }
       }
       
       res.json(student);
@@ -942,13 +968,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get student progress data
-  app.get(`${apiPrefix}/students/progress`, async (req, res) => {
+  app.get(`${apiPrefix}/students/progress`, isAuthenticated, async (req, res) => {
     try {
       const studentId = parseInt(req.query.studentId as string) || 0;
       const days = parseInt(req.query.days as string) || 30;
       
+      // For student users, restrict access to own data only
+      if (req.session?.user?.role === "student" && studentId !== 0) {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        // If trying to access another student's progress, deny access
+        if (!currentUserStudent || currentUserStudent.id !== studentId) {
+          return res.status(403).json({ message: "Permission denied: You can only view your own progress data" });
+        }
+      }
+
       if (studentId === 0) {
-        // Return overall progress for all students
+        // Return overall progress - only for teachers
+        if (req.session?.user?.role === "student") {
+          return res.status(403).json({ message: "Permission denied: Only teachers can view aggregate statistics" });
+        }
+        
         const trend = await storage.getMistakeTrend(days);
         res.json(trend);
       } else {
