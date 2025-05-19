@@ -20,11 +20,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { LogOut, Save } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Settings() {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
 
+  // Handle saving settings
   const handleSave = () => {
     setSaving(true);
     setTimeout(() => {
@@ -34,6 +38,12 @@ export default function Settings() {
         description: "Your settings have been saved successfully."
       });
     }, 1000);
+  };
+  
+  // Handle logout
+  const handleLogout = () => {
+    // Redirect to logout endpoint
+    window.location.href = "/api/auth/logout";
   };
 
   return (
@@ -127,6 +137,14 @@ export default function Settings() {
               </div>
               <Button variant="outline" className="w-full mt-2">
                 Edit Profile
+              </Button>
+              <Button 
+                variant="destructive" 
+                className="w-full mt-3"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
               </Button>
             </CardContent>
           </Card>
