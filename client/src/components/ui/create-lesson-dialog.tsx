@@ -113,8 +113,10 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
         title: "Success",
         description: "Lesson created successfully",
       });
+      // Refresh all relevant queries
       queryClient.invalidateQueries({ queryKey: ["/api/teacher/lessons/recent"] });
       queryClient.invalidateQueries({ queryKey: ["/api/teacher/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/students"] }); // Refresh student data
       form.reset();
       setOpen(false);
       

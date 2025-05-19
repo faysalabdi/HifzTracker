@@ -121,11 +121,14 @@ export default function LessonDetail() {
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "Lesson completed successfully",
+        description: "Lesson completed successfully, student progress updated",
       });
+      // Invalidate all relevant queries including student data
       queryClient.invalidateQueries({ queryKey: [`/api/lessons/${lessonId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/teacher/lessons/recent"] });
       queryClient.invalidateQueries({ queryKey: ["/api/teacher/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/students"] }); // Refresh student data
+      queryClient.invalidateQueries({ queryKey: ["/api/teacher/students"] }); // Refresh teacher's students
       // Navigate back to teacher dashboard
       navigate("/teacher/dashboard");
     },
