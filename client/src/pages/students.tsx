@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { StudentWithStats } from "@shared/schema";
+import { StudentWithStats, User } from "@shared/schema";
 import { StudentCard } from "@/components/ui/student-card";
 import { AddStudentDialog } from "@/components/ui/add-student-dialog";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,15 @@ export default function Students() {
   // Removed grade filter for adult students
   const [showAddStudentDialog, setShowAddStudentDialog] = useState(false);
 
+  // Get current user to determine role
+  const { data: currentUser } = useQuery<User>({
+    queryKey: ["/api/auth/user"],
+    retry: false,
+  });
+
+  // Determine if user is a teacher (can add students)
+  const isTeacher = currentUser?.role === "teacher";
+
   const { data: students, isLoading } = useQuery<StudentWithStats[]>({
     queryKey: ["/api/students/stats"]
   });
@@ -31,13 +40,15 @@ export default function Students() {
     <div className="p-4 md:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-heading font-semibold">Students</h2>
-        <Button 
-          onClick={() => setShowAddStudentDialog(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white rounded-md font-medium shadow-sm transition-colors block"
-        >
-          <UserPlus className="mr-2 h-4 w-4" />
-          Add Student
-        </Button>
+        {isTeacher && (
+          <Button 
+            onClick={() => setShowAddStudentDialog(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white rounded-md font-medium shadow-sm transition-colors block"
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Student
+          </Button>
+        )}
       </div>
       
       <div className="mb-6 flex flex-col md:flex-row gap-4">
@@ -64,8 +75,13 @@ export default function Students() {
         </div>
       ) : (
         <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-neutral-100">
-          {searchTerm ? "No students match your search" : "No students found. Add your first student!"}
-          {!searchTerm && (
+          {searchTerm 
+            ? "No students match your search" 
+            : isTeacher 
+              ? "No students found. Add your first student!" 
+              : "No students found."
+          }
+          {!searchTerm && isTeacher && (
             <Button 
               onClick={() => setShowAddStudentDialog(true)}
               className="bg-blue-500 hover:bg-blue-600 text-white rounded-md font-medium shadow-sm transition-colors mt-4"
