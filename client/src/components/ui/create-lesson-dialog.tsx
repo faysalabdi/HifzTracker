@@ -103,9 +103,11 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
       setOpen(false);
       
       // Navigate to the lesson tracking page
-      if (data && data.id) {
+      if (data) {
         // Redirect to the lesson detail page for tracking
-        window.location.href = `/teacher/lesson/${data.id}`;
+        setTimeout(() => {
+          window.location.href = `/teacher/lesson/${data.id}`;
+        }, 100);
       }
     },
     onError: (error) => {

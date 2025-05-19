@@ -93,8 +93,8 @@ export default function LessonDetail() {
         title: "Success",
         description: "Mistake added successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/lesson-mistakes", lessonId] });
-      queryClient.invalidateQueries({ queryKey: ["/api/lessons", lessonId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/lesson-mistakes/${lessonId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/lessons/${lessonId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/teacher/lessons/recent"] });
       queryClient.invalidateQueries({ queryKey: ["/api/teacher/stats"] });
       mistakeForm.reset({
@@ -123,7 +123,7 @@ export default function LessonDetail() {
         title: "Success",
         description: "Lesson completed successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/lessons", lessonId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/lessons/${lessonId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/teacher/lessons/recent"] });
       queryClient.invalidateQueries({ queryKey: ["/api/teacher/stats"] });
       // Navigate back to teacher dashboard
