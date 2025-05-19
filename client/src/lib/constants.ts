@@ -309,8 +309,8 @@ export const getSurahJuz = (surah: string, ayah?: number) => {
 };
 
 // Calculate progress percentage based on completed juz
-export const calculateJuzProgress = (completedJuz: number[]) => {
-  if (!completedJuz.length) return 0;
+export const calculateJuzProgress = (completedJuz: number[] | null) => {
+  if (!completedJuz || !completedJuz.length) return 0;
   return Math.round((completedJuz.length / 30) * 100);
 };
 

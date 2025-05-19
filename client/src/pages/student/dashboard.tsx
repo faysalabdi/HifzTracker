@@ -129,9 +129,9 @@ export default function StudentDashboard() {
                   <CardTitle>Your Progress</CardTitle>
                   <CardDescription>Current status of your Hifz journey</CardDescription>
                 </div>
-                <Badge className="bg-green-100 text-green-800 px-3">
+                <Badge className="bg-green-100 text-green-800 px-3" title="Completed juz out of 30 total juz">
                   {studentDetails?.completedJuz ? 
-                    `${JSON.parse(studentDetails.completedJuz).length}/30 Juz` : 
+                    `${JSON.parse(studentDetails.completedJuz || '[]').length}/30 Juz` : 
                     "0/30 Juz"}
                 </Badge>
               </div>
