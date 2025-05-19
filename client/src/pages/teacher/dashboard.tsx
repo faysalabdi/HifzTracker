@@ -179,9 +179,12 @@ export default function TeacherDashboard() {
               )}
             </CardContent>
             <CardFooter className="border-t pt-4 flex justify-center">
-              <Link href="/teacher/lessons">
-                <Button variant="outline">View All Lessons</Button>
-              </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => setActiveTab("lessons")}
+              >
+                View All Lessons
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>
