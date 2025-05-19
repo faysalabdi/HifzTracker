@@ -829,6 +829,77 @@ export class MemStorage implements IStorage {
     sampleSessions.forEach(session => this.createSession(session));
 
     // Sample mistakes
+    // Sample lessons
+    const sampleLessons: InsertLesson[] = [
+      {
+        teacherId: 1,
+        studentId: 1,
+        date: new Date(),
+        surahStart: "Al-Baqarah",
+        ayahStart: 25,
+        surahEnd: "Al-Baqarah",
+        ayahEnd: 40,
+        notes: "Focus on tajweed rules",
+        progress: "In Progress"
+      },
+      {
+        teacherId: 1,
+        studentId: 2,
+        date: new Date(),
+        surahStart: "Al-Imran",
+        ayahStart: 10,
+        surahEnd: "Al-Imran",
+        ayahEnd: 20,
+        notes: "Work on memorization techniques",
+        progress: "In Progress"
+      },
+      {
+        teacherId: 2,
+        studentId: 3,
+        date: new Date(),
+        surahStart: "An-Nisa",
+        ayahStart: 5,
+        surahEnd: "An-Nisa",
+        ayahEnd: 15,
+        notes: "Practice pronunciation",
+        progress: "In Progress"
+      }
+    ];
+    
+    // Create sample lessons
+    sampleLessons.forEach(lesson => this.createLesson(lesson));
+    
+    // Sample lesson mistakes
+    const sampleLessonMistakes: InsertLessonMistake[] = [
+      {
+        lessonId: 1,
+        studentId: 1,
+        type: "tajweed",
+        surah: "Al-Baqarah",
+        ayah: 26,
+        description: "Incorrect pronunciation of heavy letters"
+      },
+      {
+        lessonId: 1,
+        studentId: 1,
+        type: "word",
+        surah: "Al-Baqarah",
+        ayah: 28,
+        description: "Skipped a word in the verse"
+      },
+      {
+        lessonId: 2,
+        studentId: 2,
+        type: "stuck",
+        surah: "Al-Imran",
+        ayah: 12,
+        description: "Hesitated for too long"
+      }
+    ];
+    
+    // Create sample lesson mistakes
+    sampleLessonMistakes.forEach(mistake => this.createLessonMistake(mistake));
+    
     const sampleMistakes: InsertMistake[] = [
       { 
         sessionId: 1, 
