@@ -170,7 +170,10 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
                 <FormItem>
                   <FormLabel>Student</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setSelectedStudentId(value);
+                    }}
                     defaultValue={field.value}
                   >
                     <FormControl>
