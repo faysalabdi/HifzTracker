@@ -28,43 +28,71 @@ export default function LoginPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       username: "",
-      role: "student",
+      role: "teacher", // Default to teacher for testing
     },
   });
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormValues) => {
       setIsLoading(true);
+      setLoginError(null);
+      console.log("Attempting login with:", data);
+      
       try {
-        const response = await apiRequest("POST", "/api/auth/login", data);
-        const result = await response.json();
-        return result;
+        // Direct fetch for login to handle specific errors
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+          credentials: "include"
+        });
+        
+        // Get the response data
+        const responseText = await response.text();
+        const responseData = responseText ? JSON.parse(responseText) : {};
+        
+        if (!response.ok) {
+          console.error("Login error:", responseData);
+          throw new Error(responseData.message || "Login failed");
+        }
+        
+        return responseData;
+      } catch (error) {
+        console.error("Login error:", error);
+        setLoginError(error instanceof Error ? error.message : "Login failed");
+        throw error;
       } finally {
         setIsLoading(false);
       }
     },
     onSuccess: (data) => {
+      console.log("Login successful:", data);
       toast({
         title: "Login successful!",
         description: `Welcome back, ${data.name}`,
       });
       
-      // Redirect based on role
-      if (data.role === "teacher") {
-        navigate("/teacher/dashboard");
-      } else {
-        navigate("/student/dashboard");
-      }
+      // Refresh the page after successful login to ensure updated auth state
+      setTimeout(() => {
+        // Redirect based on role
+        if (data.role === "teacher") {
+          window.location.href = "/teacher/dashboard";
+        } else {
+          window.location.href = "/student/dashboard";
+        }
+      }, 100);
     },
     onError: (error) => {
+      console.error("Login mutation error:", error);
       toast({
         title: "Login failed",
-        description: "Invalid username or role. Please try again.",
+        description: loginError || "Invalid username or role. Please try again.",
         variant: "destructive",
       });
     },
