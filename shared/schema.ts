@@ -25,6 +25,7 @@ export const students = pgTable("students", {
   grade: text("grade").default("adult").notNull(),
   currentJuz: integer("current_juz").notNull(),
   currentSurah: text("current_surah"),
+  currentAyah: integer("current_ayah").default(1),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

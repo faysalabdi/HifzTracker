@@ -94,7 +94,13 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
       if (student && student.currentSurah) {
         // Use the student's current position to populate the starting position
         form.setValue("surahStart", student.currentSurah);
-        form.setValue("ayahStart", 1); // Default to start from beginning of the surah
+        
+        // If the student has a current ayah saved, use it; otherwise default to 1
+        if (student.currentAyah) {
+          form.setValue("ayahStart", student.currentAyah);
+        } else {
+          form.setValue("ayahStart", 1);
+        }
       }
     }
   }, [selectedStudentId, students, form]);

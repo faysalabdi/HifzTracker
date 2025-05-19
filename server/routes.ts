@@ -12,39 +12,8 @@ import {
   UserRole
 } from "@shared/schema";
 
-// Import constants for tracking surah progress
-const surahs = {
-  "Al-Fatihah": 7,
-  "Al-Baqarah": 286,
-  "Ali 'Imran": 200,
-  "An-Nisa": 176,
-  "Al-Ma'idah": 120,
-  "Al-An'am": 165,
-  "Al-A'raf": 206,
-  "Al-Anfal": 75,
-  "At-Tawbah": 129,
-  "Yunus": 109,
-  "Hud": 123,
-  "Yusuf": 111,
-  "Ar-Ra'd": 43,
-  "Ibrahim": 52,
-  "Al-Hijr": 99,
-  "An-Nahl": 128,
-  "Al-Isra": 111,
-  "Al-Kahf": 110,
-  "Maryam": 98,
-  "Ta-Ha": 135,
-  "Al-Anbya": 112,
-  "Al-Hajj": 78,
-  "Al-Mu'minun": 118,
-  "An-Nur": 64,
-  "Al-Furqan": 77,
-  "Ash-Shu'ara": 227,
-  "An-Naml": 93,
-  "Al-Qasas": 88,
-  "Al-Ankabut": 69,
-  "Ar-Rum": 60,
-};
+// Import constants from the client for tracking surah progress
+import { surahs } from "../client/src/lib/constants";
 
 // Session augmentation for TypeScript
 declare module 'express-session' {
@@ -327,8 +296,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update the lesson to completed status
       const updatedLesson = await storage.updateLesson(lessonId, { progress: "Completed" });
       
-      // Update the student's current position
-      // Find the surah number from the text for currentJuz calculation
+      // Update the student's current position including ayah
       const student = await storage.getStudent(lesson.studentId);
       if (student) {
         // Get the surah number for the ending position
@@ -338,9 +306,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Convert to number to store in student profile
         const juzForSurah = Math.ceil((surahIndex + 1) / 4); // Approximate mapping
         
-        // Update student record with the ending position of this lesson
+        // Update student record with the ending position of this lesson,
+        // including both surah and ayah
         await storage.updateStudent(lesson.studentId, {
           currentSurah: lesson.surahEnd,
+          currentAyah: lesson.ayahEnd, // Store the ending ayah as well
           currentJuz: juzForSurah || student.currentJuz // Fallback to current juz if we can't calculate
         });
       }
