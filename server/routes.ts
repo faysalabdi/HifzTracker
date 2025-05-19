@@ -651,9 +651,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get(`${apiPrefix}/students/:id/stats`, async (req, res) => {
+  app.get(`${apiPrefix}/students/:id/stats`, isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // For student users, only allow viewing their own stats
+      if (req.session?.user?.role === "student") {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        // If this is not the student's own record, return error
+        if (!currentUserStudent || currentUserStudent.id !== id) {
+          return res.status(403).json({ message: "Permission denied: You can only view your own statistics" });
+        }
+      }
+      
       const studentWithStats = await storage.getStudentWithStats(id);
       
       if (!studentWithStats) {
@@ -666,7 +679,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post(`${apiPrefix}/students`, async (req, res) => {
+  app.post(`${apiPrefix}/students`, isAuthenticated, hasRole('teacher'), async (req, res) => {
     try {
       const validatedData = insertStudentSchema.parse(req.body);
       const student = await storage.createStudent(validatedData);
@@ -679,9 +692,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put(`${apiPrefix}/students/:id`, async (req, res) => {
+  app.put(`${apiPrefix}/students/:id`, isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // For student users, only allow updating their own profile
+      if (req.session?.user?.role === "student") {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        // If this is not the student's own record, return error
+        if (!currentUserStudent || currentUserStudent.id !== id) {
+          return res.status(403).json({ message: "Permission denied: You can only update your own profile" });
+        }
+        
+        // Students can only update specific fields (e.g., notes)
+        const allowedFields = ["notes"];
+        const forbiddenKeys = Object.keys(req.body).filter(key => !allowedFields.includes(key));
+        
+        if (forbiddenKeys.length > 0) {
+          return res.status(403).json({ 
+            message: "Permission denied: You can only update your notes", 
+            forbiddenFields: forbiddenKeys
+          });
+        }
+      }
+      
       const validatedData = insertStudentSchema.partial().parse(req.body);
       const updatedStudent = await storage.updateStudent(id, validatedData);
       
@@ -698,7 +735,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete(`${apiPrefix}/students/:id`, async (req, res) => {
+  app.delete(`${apiPrefix}/students/:id`, isAuthenticated, hasRole('teacher'), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const deleted = await storage.deleteStudent(id);
@@ -714,8 +751,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Sessions API
-  app.get(`${apiPrefix}/sessions`, async (req, res) => {
+  app.get(`${apiPrefix}/sessions`, isAuthenticated, async (req, res) => {
     try {
+      // For student users, only show sessions they participated in
+      if (req.session?.user?.role === "student") {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        if (!currentUserStudent) {
+          return res.status(404).json({ message: "Student record not found for current user" });
+        }
+        
+        // Get only sessions where the student is either student1 or student2
+        const studentId = currentUserStudent.id;
+        const studentSessions = await storage.getSessionsByStudent(studentId);
+        return res.json(studentSessions);
+      }
+      
+      // Teachers can see all sessions
       const sessions = await storage.getSessions();
       res.json(sessions);
     } catch (error) {
@@ -733,13 +787,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get(`${apiPrefix}/sessions/:id`, async (req, res) => {
+  app.get(`${apiPrefix}/sessions/:id`, isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const sessionWithDetails = await storage.getSessionWithDetails(id);
       
       if (!sessionWithDetails) {
         return res.status(404).json({ message: "Session not found" });
+      }
+      
+      // For student users, verify they are part of this session
+      if (req.session?.user?.role === "student") {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        if (!currentUserStudent) {
+          return res.status(404).json({ message: "Student record not found for current user" });
+        }
+        
+        // Check if the student is part of this session
+        const studentId = currentUserStudent.id;
+        if (sessionWithDetails.student1.id !== studentId && sessionWithDetails.student2.id !== studentId) {
+          return res.status(403).json({ message: "Permission denied: You are not a participant in this session" });
+        }
       }
       
       res.json(sessionWithDetails);
