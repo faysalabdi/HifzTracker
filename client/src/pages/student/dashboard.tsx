@@ -141,13 +141,13 @@ export default function StudentDashboard() {
                 <div className="flex justify-between text-sm mb-1">
                   <span>Overall Progress</span>
                   <span>{studentDetails?.completedJuz ? 
-                    `${Math.round((JSON.parse(studentDetails.completedJuz).length / 30) * 100)}%` : 
+                    `${Math.round((JSON.parse(studentDetails.completedJuz || '[]').length / 30) * 100)}%` : 
                     "0%"}
                   </span>
                 </div>
                 <Progress 
                   value={studentDetails?.completedJuz ? 
-                    (JSON.parse(studentDetails.completedJuz).length / 30) * 100 : 0} 
+                    (JSON.parse(studentDetails.completedJuz || '[]').length / 30) * 100 : 0} 
                   className="h-2" 
                 />
               </div>
