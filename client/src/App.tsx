@@ -40,6 +40,23 @@ function AuthenticatedRoute({ component: Component, requiredRole = null, ...rest
     retry: false,
     gcTime: 0
   });
+  
+  // Use useEffect for navigation to avoid React warnings
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        navigate("/login");
+      } else if (requiredRole && user.role !== requiredRole) {
+        if (user.role === "teacher") {
+          navigate("/teacher/dashboard");
+        } else if (user.role === "student") {
+          navigate("/student/dashboard");
+        } else {
+          navigate("/");
+        }
+      }
+    }
+  }, [user, isLoading, requiredRole, navigate]);
 
   if (isLoading) {
     return (
@@ -51,13 +68,11 @@ function AuthenticatedRoute({ component: Component, requiredRole = null, ...rest
   }
 
   if (!user) {
-    navigate("/login");
     return null;
   }
 
   // Check if a specific role is required
   if (requiredRole && user.role !== requiredRole) {
-    navigate("/");
     return null;
   }
 
