@@ -829,10 +829,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post(`${apiPrefix}/sessions`, async (req, res) => {
+  app.post(`${apiPrefix}/sessions`, isAuthenticated, async (req, res) => {
     try {
       // Create a proper session object with default date if not provided
       let sessionData = { ...req.body };
+      
+      // For student users, verify they are part of this session
+      if (req.session?.user?.role === "student") {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        if (!currentUserStudent) {
+          return res.status(404).json({ message: "Student record not found for current user" });
+        }
+        
+        // Check if the student is including themselves in the session
+        const student1Id = Number(sessionData.student1Id);
+        const student2Id = Number(sessionData.student2Id);
+        
+        if (student1Id !== currentUserStudent.id && student2Id !== currentUserStudent.id) {
+          return res.status(403).json({ 
+            message: "Permission denied: You must be one of the participants in the session" 
+          });
+        }
+      }
       
       // Ensure date is a Date object
       if (!sessionData.date) {
@@ -859,9 +880,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put(`${apiPrefix}/sessions/:id`, async (req, res) => {
+  app.put(`${apiPrefix}/sessions/:id`, isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Get the session first to check permissions
+      const session = await storage.getSession(id);
+      if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      // For student users, verify they are part of this session
+      if (req.session?.user?.role === "student") {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        if (!currentUserStudent) {
+          return res.status(404).json({ message: "Student record not found for current user" });
+        }
+        
+        // Check if the student is part of this session
+        if (session.student1Id !== currentUserStudent.id && session.student2Id !== currentUserStudent.id) {
+          return res.status(403).json({ 
+            message: "Permission denied: You can only update sessions you participate in" 
+          });
+        }
+      }
+      
       const validatedData = insertSessionSchema.partial().parse(req.body);
       const updatedSession = await storage.updateSession(id, validatedData);
       
@@ -878,9 +924,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post(`${apiPrefix}/sessions/:id/complete`, async (req, res) => {
+  app.post(`${apiPrefix}/sessions/:id/complete`, isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Get the session first to check permissions
+      const session = await storage.getSession(id);
+      if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      // For student users, verify they are part of this session
+      if (req.session?.user?.role === "student") {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        if (!currentUserStudent) {
+          return res.status(404).json({ message: "Student record not found for current user" });
+        }
+        
+        // Check if the student is part of this session
+        if (session.student1Id !== currentUserStudent.id && session.student2Id !== currentUserStudent.id) {
+          return res.status(403).json({ 
+            message: "Permission denied: You can only complete sessions you participate in" 
+          });
+        }
+      }
+      
       const completedSession = await storage.completeSession(id);
       
       if (!completedSession) {
@@ -893,9 +964,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete(`${apiPrefix}/sessions/:id`, async (req, res) => {
+  app.delete(`${apiPrefix}/sessions/:id`, isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Get the session first to check permissions
+      const session = await storage.getSession(id);
+      if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      // For student users, verify they are part of this session
+      if (req.session?.user?.role === "student") {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        if (!currentUserStudent) {
+          return res.status(404).json({ message: "Student record not found for current user" });
+        }
+        
+        // Check if the student is part of this session
+        if (session.student1Id !== currentUserStudent.id && session.student2Id !== currentUserStudent.id) {
+          return res.status(403).json({ 
+            message: "Permission denied: You can only delete sessions you participate in" 
+          });
+        }
+      }
+      
       const deleted = await storage.deleteSession(id);
       
       if (!deleted) {
@@ -909,8 +1005,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Mistakes API
-  app.get(`${apiPrefix}/mistakes`, async (req, res) => {
+  app.get(`${apiPrefix}/mistakes`, isAuthenticated, async (req, res) => {
     try {
+      // For student users, only return their mistakes
+      if (req.session?.user?.role === "student") {
+        // Get the student record associated with the current user
+        const students = await storage.getStudents();
+        const currentUserStudent = students.find(s => s.userId === req.session?.user?.id);
+        
+        if (!currentUserStudent) {
+          return res.status(404).json({ message: "Student record not found for current user" });
+        }
+        
+        // Get only mistakes for this student
+        const studentId = currentUserStudent.id;
+        const studentMistakes = await storage.getMistakesByStudent(studentId);
+        return res.json(studentMistakes);
+      }
+      
+      // Teachers can see all mistakes
       const mistakes = await storage.getMistakes();
       res.json(mistakes);
     } catch (error) {
