@@ -863,6 +863,17 @@ export class MemStorage implements IStorage {
         ayahEnd: 15,
         notes: "Practice pronunciation",
         progress: "In Progress"
+      },
+      {
+        teacherId: 1,
+        studentId: 1,
+        date: new Date(),
+        surahStart: "Al-Ma'idah",
+        ayahStart: 1,
+        surahEnd: "Al-Ma'idah",
+        ayahEnd: 10,
+        notes: "Work on fluency and rhythm",
+        progress: "In Progress"
       }
     ];
     
