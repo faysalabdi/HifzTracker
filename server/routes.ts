@@ -11,6 +11,7 @@ import {
   insertUserSchema,
   UserRole
 } from "@shared/schema";
+import { updateCompletedJuz, getSurahJuz } from "./utils";
 
 // Import constants from the client for tracking surah progress
 import { surahs } from "../client/src/lib/constants";
@@ -340,8 +341,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update the student's current position including ayah
       const student = await storage.getStudent(lesson.studentId);
       if (student) {
-        // Import utilities for tracking Quran progress
-        const { updateCompletedJuz } = require('./utils');
+        // Use the imported utilities for tracking Quran progress
         
         // Update the completedJuz array with any newly completed juz based on current position
         const updatedCompletedJuz = updateCompletedJuz(
@@ -350,9 +350,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lesson.ayahEnd
         );
         
-        // Update the student with the new current position and completed juz
-        // Use the getSurahJuz function to get the current juz
-        const { getSurahJuz } = require('./utils');
+        // Get the current juz using imported utility
         const currentJuz = getSurahJuz(lesson.surahEnd, lesson.ayahEnd) || student.currentJuz;
         
         // Update student record with the ending position, completed juz, and current juz
