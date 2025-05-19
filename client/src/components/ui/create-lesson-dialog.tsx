@@ -92,7 +92,7 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
         studentId: parseInt(formData.studentId),
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Success",
         description: "Lesson created successfully",
@@ -101,6 +101,12 @@ export function CreateLessonDialog({ students, teacherId, trigger, initialStuden
       queryClient.invalidateQueries({ queryKey: ["/api/teacher/stats"] });
       form.reset();
       setOpen(false);
+      
+      // Navigate to the lesson tracking page
+      if (data && data.id) {
+        // Redirect to the lesson detail page for tracking
+        window.location.href = `/teacher/lesson/${data.id}`;
+      }
     },
     onError: (error) => {
       toast({
