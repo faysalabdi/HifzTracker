@@ -193,6 +193,32 @@
   }
   ```
 
+### 9. Authentication Issues After API Changes
+
+**Issue:** After updating the apiRequest function to automatically parse JSON responses, login functionality broke because the login component was also trying to parse the JSON response.
+
+**Root Cause:**
+- Double parsing of JSON responses in the login flow
+- Session cookie handling issues with the Replit environment
+- Mismatched API endpoint expectations between client and server
+
+**Solution:**
+- Modified login components to use the updated apiRequest function correctly
+- Added better error handling and logs to track authentication issues
+- Updated session handling in server routes
+
+### 10. Session management challenges
+
+**Issue:** Session data is not persisting correctly between page loads in the Replit environment.
+
+**Root Cause:**
+- Cookie storage and session management limitations in the Replit preview environment 
+
+**Solution:**
+- Updated session configuration with more specific cookie settings
+- Added session debugging middleware to track session behavior
+- Implemented more robust error handling for authentication flows
+
 ## Current Issues
 
 ### 1. Application Not Starting
